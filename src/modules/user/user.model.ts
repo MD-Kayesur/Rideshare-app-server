@@ -7,8 +7,11 @@ const userSchema = new Schema<TUser>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true, select: 0 },
+    password: { type: String, required: true, select: false },
     phone: { type: String, required: true, unique: true },
+    gender: { type: String, enum: ['Male', 'Female', 'Other'] },
+    verificationCode: { type: String, select: false },
+    verificationCodeExpires: { type: Date, select: false },
     role: { type: String, enum: ['rider', 'driver', 'admin'], default: 'rider' },
     avatar: { type: String },
     rating: { type: Number, default: 5 },

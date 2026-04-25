@@ -5,11 +5,18 @@ import { AuthValidation } from './auth.validation';
 
 const router = express.Router();
 
-router.post('/register', AuthController.registerUser);
+router.post(
+  '/register',
+  validateRequest(AuthValidation.registerValidationSchema),
+  AuthController.registerUser,
+);
 router.post(
   '/login',
   validateRequest(AuthValidation.loginValidationSchema),
   AuthController.loginUser,
 );
+
+router.post('/verify-otp', AuthController.verifyOTP);
+router.post('/resend-otp', AuthController.resendOTP);
 
 export const AuthRoutes = router;
