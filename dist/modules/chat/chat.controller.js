@@ -8,6 +8,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const chat_service_1 = require("./chat.service");
+const socket_io_1 = require("../../socket/socket.io");
 const createChat = (0, catchAsync_1.default)(async (req, res) => {
     const { participants, rideId } = req.body;
     const result = await chat_service_1.ChatService.createChat(participants, rideId);
@@ -22,6 +23,9 @@ const sendMessage = (0, catchAsync_1.default)(async (req, res) => {
     const { chatId, content } = req.body;
     const senderId = req.user.userId;
     const result = await chat_service_1.ChatService.sendMessage(chatId, senderId, content);
+    // Emit real-time update
+    const io = (0, socket_io_1.getIo)();
+    io.to(chatId).emit('new_message', result);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,

@@ -17,6 +17,25 @@ const registerUser = (0, catchAsync_1.default)(async (req, res) => {
         data: result,
     });
 });
+const verifyOTP = (0, catchAsync_1.default)(async (req, res) => {
+    const result = await auth_service_1.AuthService.verifyOTP(req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'OTP verified successfully',
+        data: result,
+    });
+});
+const resendOTP = (0, catchAsync_1.default)(async (req, res) => {
+    const { email } = req.body;
+    const result = await auth_service_1.AuthService.resendOTP(email);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'OTP resent successfully',
+        data: result,
+    });
+});
 const loginUser = (0, catchAsync_1.default)(async (req, res) => {
     const result = await auth_service_1.AuthService.loginUser(req.body);
     (0, sendResponse_1.default)(res, {
@@ -28,5 +47,7 @@ const loginUser = (0, catchAsync_1.default)(async (req, res) => {
 });
 exports.AuthController = {
     registerUser,
+    verifyOTP,
+    resendOTP,
     loginUser,
 };

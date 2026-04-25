@@ -14,7 +14,18 @@ const changePasswordValidationSchema = zod_1.z.object({
         newPassword: zod_1.z.string().min(6),
     }),
 });
+const registerValidationSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        name: zod_1.z.string().min(1, 'Name is required'),
+        email: zod_1.z.string().email('Invalid email address'),
+        password: zod_1.z.string().min(6, 'Password must be at least 6 characters'),
+        phone: zod_1.z.string().min(1, 'Phone number is required'),
+        gender: zod_1.z.enum(['Male', 'Female', 'Other']),
+        role: zod_1.z.enum(['rider', 'driver', 'admin']).optional(),
+    }),
+});
 exports.AuthValidation = {
     loginValidationSchema,
+    registerValidationSchema,
     changePasswordValidationSchema,
 };
