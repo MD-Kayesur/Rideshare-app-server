@@ -3,10 +3,69 @@ import { TUser } from '../user/user.interface';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from '../../config';
+import { sendEmail } from '../../utils/sendEmail';
 
 const registerUser = async (payload: TUser) => {
-  const result = await User.create(payload);
+  // Generate 5-digit OTP
+  const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+  const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+  const result = await User.create({
+    ...payload,
+    verificationCode,
+    verificationCodeExpires,
+  });
+
+  // Send the code via Email
+  await sendEmail(
+    payload.email,
+    'Verify your account',
+    `<h1>Verification Code</h1><p>Your code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
+  );
+
   return result;
+};
+
+const verifyOTP = async (payload: { email: string; code: string }) => {
+  const user = await User.findOne({
+    email: payload.email,
+    verificationCode: payload.code,
+    verificationCodeExpires: { $gt: new Date() },
+  });
+
+  if (!user) {
+    throw new Error('Invalid or expired verification code');
+  }
+
+  user.isVerified = true;
+  user.verificationCode = undefined;
+  user.verificationCodeExpires = undefined;
+  await user.save();
+
+  return user;
+};
+
+const resendOTP = async (email: string) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+  const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+  user.verificationCode = verificationCode;
+  user.verificationCodeExpires = verificationCodeExpires;
+  await user.save();
+
+  // Send the code via Email
+  await sendEmail(
+    email,
+    'Resend Verification Code',
+    `<h1>Verification Code</h1><p>Your new code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
+  );
+
+  return { message: 'Verification code resent successfully' };
 };
 
 const loginUser = async (payload: any) => {
@@ -14,6 +73,11 @@ const loginUser = async (payload: any) => {
   if (!user) {
     throw new Error('User not found');
   }
+
+  // If we want to enforce verification before login
+  // if (!user.isVerified) {
+  //   throw new Error('Please verify your phone number first');
+  // }
 
   const isPasswordMatched = await bcryptjs.compare(
     payload.password,
@@ -35,5 +99,7 @@ const loginUser = async (payload: any) => {
 
 export const AuthService = {
   registerUser,
+  verifyOTP,
+  resendOTP,
   loginUser,
 };

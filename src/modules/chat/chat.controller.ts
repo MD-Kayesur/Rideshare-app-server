@@ -3,6 +3,7 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { ChatService } from './chat.service';
+import { getIo } from '../../socket/socket.io';
 
 const createChat = catchAsync(async (req: Request, res: Response) => {
   const { participants, rideId } = req.body;
@@ -20,6 +21,10 @@ const sendMessage = catchAsync(async (req: Request, res: Response) => {
   const { chatId, content } = req.body;
   const senderId = req.user.userId;
   const result = await ChatService.sendMessage(chatId, senderId, content);
+
+  // Emit real-time update
+  const io = getIo();
+  io.to(chatId).emit('new_message', result);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,

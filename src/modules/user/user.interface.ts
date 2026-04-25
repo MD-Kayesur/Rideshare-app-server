@@ -4,8 +4,11 @@ export type TUser = {
   name: string;
   email: string;
   password?: string;
+  gender: 'Male' | 'Female' | 'Other';
   phone: string;
   role: TUserRole;
+  verificationCode?: string;
+  verificationCodeExpires?: Date;
   avatar?: string;
   rating?: number;
   isVerified?: boolean;
