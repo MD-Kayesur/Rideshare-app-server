@@ -1,0 +1,35 @@
+import { Server as SocketServer } from 'socket.io';
+import { Server as HttpServer } from 'http';
+import { chatSocketHandlers } from '../modules/chat/chat.socket';
+import { callSocketHandlers } from '../modules/call/call.socket';
+
+let io: SocketServer;
+
+export const initializeSocket = (server: HttpServer) => {
+  io = new SocketServer(server, {
+    cors: {
+      origin: '*',
+    },
+  });
+
+  io.on('connection', (socket) => {
+    console.log('A user connected:', socket.id);
+
+    // Initialize module-specific socket handlers
+    chatSocketHandlers(io, socket);
+    callSocketHandlers(io, socket);
+
+    socket.on('disconnect', () => {
+      console.log('User disconnected:', socket.id);
+    });
+  });
+
+  return io;
+};
+
+export const getIo = () => {
+  if (!io) {
+    throw new Error('Socket.io not initialized!');
+  }
+  return io;
+};
