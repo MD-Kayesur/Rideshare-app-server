@@ -6,6 +6,7 @@ import config from '../../config';
 import { sendEmail } from '../../utils/sendEmail';
 
 const registerUser = async (payload: TUser) => {
+  console.log(payload, 'payload');
   // Generate 5-digit OTP
   const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
   const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes

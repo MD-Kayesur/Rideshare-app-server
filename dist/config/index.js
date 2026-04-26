@@ -19,4 +19,6 @@ exports.default = {
     cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
     cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
     stripe_secret_key: process.env.STRIPE_SECRET_KEY,
+    email_user: process.env.EMAIL_USER,
+    email_pass: process.env.EMAIL_PASS,
 };

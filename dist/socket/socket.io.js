@@ -11,6 +11,7 @@ const initializeSocket = (server) => {
             origin: '*',
         },
     });
+    console.log('Socket.io initialized and waiting for connections');
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
         // Initialize module-specific socket handlers
