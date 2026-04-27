@@ -16,7 +16,8 @@ const registerUser = async (payload: TUser) => {
     verificationCode,
     verificationCodeExpires,
   });
-  console.log(result, 'result service');
+
+  console.log({ ...result.toObject(), verificationCode }, 'result service');
   // Send the code via Email
   await sendEmail(
     payload.email,
@@ -24,7 +25,10 @@ const registerUser = async (payload: TUser) => {
     `<h1>Verification Code</h1><p>Your code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
   );
 
-  return result;
+  return {
+    user: result,
+    verificationCode, // Added for practice purpose
+  };
 };
 
 const verifyOTP = async (payload: { email: string; code: string }) => {
@@ -60,6 +64,8 @@ const resendOTP = async (email: string) => {
   user.verificationCodeExpires = verificationCodeExpires;
   await user.save();
 
+  console.log({ ...user.toObject(), verificationCode }, 'result service');
+
   // Send the code via Email
   await sendEmail(
     email,
@@ -67,7 +73,10 @@ const resendOTP = async (email: string) => {
     `<h1>Verification Code</h1><p>Your new code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
   );
 
-  return { message: 'Verification code resent successfully' };
+  return {
+    message: 'Verification code resent successfully',
+    verificationCode, // Added for practice purpose
+  };
 };
 
 const loginUser = async (payload: any) => {
