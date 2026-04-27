@@ -18,12 +18,16 @@ const registerUser = async (payload: TUser) => {
   });
 
   console.log({ ...result.toObject(), verificationCode }, 'result service');
-  // Send the code via Email
-  await sendEmail(
-    payload.email,
-    'Verify your account',
-    `<h1>Verification Code</h1><p>Your code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
-  );
+  // Send the code via Email (wrapped in try-catch to avoid failing registration if email service is not configured)
+  try {
+    await sendEmail(
+      payload.email,
+      'Verify your account',
+      `<h1>Verification Code</h1><p>Your code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
+    );
+  } catch (error) {
+    console.error('Email sending failed, but user was created:', error);
+  }
 
   return {
     user: result,
@@ -67,11 +71,15 @@ const resendOTP = async (email: string) => {
   console.log({ ...user.toObject(), verificationCode }, 'result service');
 
   // Send the code via Email
-  await sendEmail(
-    email,
-    'Resend Verification Code',
-    `<h1>Verification Code</h1><p>Your new code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
-  );
+  try {
+    await sendEmail(
+      email,
+      'Resend Verification Code',
+      `<h1>Verification Code</h1><p>Your new code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
+    );
+  } catch (error) {
+    console.error('Email resending failed:', error);
+  }
 
   return {
     message: 'Verification code resent successfully',

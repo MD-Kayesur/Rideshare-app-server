@@ -21,7 +21,7 @@ const userSchema = new Schema<TUser>(
       coordinates: { type: [Number] },
     },
   },
-  { timestamps: true },
+  { timestamps: true, collection: 'auth' },
 );
 
 userSchema.pre('save', async function (next) {
