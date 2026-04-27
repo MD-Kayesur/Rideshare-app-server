@@ -27,10 +27,14 @@ const userSchema = new Schema<TUser>(
 userSchema.pre('save', async function (next) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this;
-  user.password = await bcryptjs.hash(
-    user.password as string,
-    Number(config.bcrypt_salt_rounds),
-  );
+
+  // Only hash the password if it has been modified (or is new)
+  if (user.isModified('password')) {
+    user.password = await bcryptjs.hash(
+      user.password as string,
+      Number(config.bcrypt_salt_rounds),
+    );
+  }
   next();
 });
 
