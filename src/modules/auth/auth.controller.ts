@@ -5,6 +5,7 @@ import httpStatus from 'http-status';
 import { AuthService } from './auth.service';
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
+  console.log('Registering user with body:', req.body);
   const result = await AuthService.registerUser(req.body);
 
   sendResponse(res, {
@@ -16,8 +17,9 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const verifyOTP = catchAsync(async (req: Request, res: Response) => {
+  console.log('Verifying OTP with body:', req.body);
   const result = await AuthService.verifyOTP(req.body);
-
+  console.log(result, 'verifyOTP controller');
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -27,9 +29,10 @@ const verifyOTP = catchAsync(async (req: Request, res: Response) => {
 });
 
 const resendOTP = catchAsync(async (req: Request, res: Response) => {
+  console.log('Resending OTP with body:', req.body);
   const { email } = req.body;
   const result = await AuthService.resendOTP(email);
-
+  console.log(result, 'resendOTP controller');
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -39,6 +42,7 @@ const resendOTP = catchAsync(async (req: Request, res: Response) => {
 });
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
+  console.log('Logging in user with body:', req.body);
   const result = await AuthService.loginUser(req.body);
 
   sendResponse(res, {

@@ -6,6 +6,7 @@ import config from '../../config';
 import { sendEmail } from '../../utils/sendEmail';
 
 const registerUser = async (payload: TUser) => {
+  console.log('registerUser payload:', payload);
   // Generate 5-digit OTP
   const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
   const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -15,7 +16,7 @@ const registerUser = async (payload: TUser) => {
     verificationCode,
     verificationCodeExpires,
   });
-
+  console.log(result, 'result service');
   // Send the code via Email
   await sendEmail(
     payload.email,
@@ -32,6 +33,7 @@ const verifyOTP = async (payload: { email: string; code: string }) => {
     verificationCode: payload.code,
     verificationCodeExpires: { $gt: new Date() },
   });
+  console.log(user, 'user');
 
   if (!user) {
     throw new Error('Invalid or expired verification code');
@@ -69,6 +71,7 @@ const resendOTP = async (email: string) => {
 };
 
 const loginUser = async (payload: any) => {
+  console.log('loginUser payload:', payload);
   const user = await User.findOne({ email: payload.email }).select('+password');
   if (!user) {
     throw new Error('User not found');
