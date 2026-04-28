@@ -6,7 +6,7 @@ import config from '../../config';
 import { sendEmail } from '../../utils/sendEmail';
 
 const registerUser = async (payload: TUser) => {
-  console.log(payload, 'payload');
+  console.log('registerUser payload:', payload);
   // Generate 5-digit OTP
   const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
   const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -17,14 +17,22 @@ const registerUser = async (payload: TUser) => {
     verificationCodeExpires,
   });
 
-  // Send the code via Email
-  await sendEmail(
-    payload.email,
-    'Verify your account',
-    `<h1>Verification Code</h1><p>Your code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
-  );
+  console.log({ ...result.toObject(), verificationCode }, 'result service');
+  // Send the code via Email (wrapped in try-catch to avoid failing registration if email service is not configured)
+  try {
+    await sendEmail(
+      payload.email,
+      'Verify your account',
+      `<h1>Verification Code</h1><p>Your code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
+    );
+  } catch (error) {
+    console.error('Email sending failed, but user was created:', error);
+  }
 
-  return result;
+  return {
+    user: result,
+    verificationCode, // Added for practice purpose
+  };
 };
 
 const verifyOTP = async (payload: { email: string; code: string }) => {
@@ -33,6 +41,7 @@ const verifyOTP = async (payload: { email: string; code: string }) => {
     verificationCode: payload.code,
     verificationCodeExpires: { $gt: new Date() },
   });
+  console.log(user, 'user');
 
   if (!user) {
     throw new Error('Invalid or expired verification code');
@@ -59,17 +68,27 @@ const resendOTP = async (email: string) => {
   user.verificationCodeExpires = verificationCodeExpires;
   await user.save();
 
-  // Send the code via Email
-  await sendEmail(
-    email,
-    'Resend Verification Code',
-    `<h1>Verification Code</h1><p>Your new code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
-  );
+  console.log({ ...user.toObject(), verificationCode }, 'result service');
 
-  return { message: 'Verification code resent successfully' };
+  // Send the code via Email
+  try {
+    await sendEmail(
+      email,
+      'Resend Verification Code',
+      `<h1>Verification Code</h1><p>Your new code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`,
+    );
+  } catch (error) {
+    console.error('Email resending failed:', error);
+  }
+
+  return {
+    message: 'Verification code resent successfully',
+    verificationCode, // Added for practice purpose
+  };
 };
 
 const loginUser = async (payload: any) => {
+  console.log('loginUser payload:', payload);
   const user = await User.findOne({ email: payload.email }).select('+password');
   if (!user) {
     throw new Error('User not found');

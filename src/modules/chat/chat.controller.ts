@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
@@ -20,6 +21,17 @@ const createChat = catchAsync(async (req: Request, res: Response) => {
 const sendMessage = catchAsync(async (req: Request, res: Response) => {
   const { chatId, content } = req.body;
   const senderId = req.user.userId;
+
+  // Validate chatId (Allowing 'default_chat_id' for frontend testing)
+  if (!mongoose.Types.ObjectId.isValid(chatId) && chatId !== 'default_chat_id') {
+    return sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: 'Invalid Chat ID',
+      data: null,
+    });
+  }
+
   const result = await ChatService.sendMessage(chatId, senderId, content);
 
   // Emit real-time update
