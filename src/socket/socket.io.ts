@@ -12,7 +12,10 @@ export const initializeSocket = (server: HttpServer) => {
     },
   });
 
+  console.log('socket io connection successfully');
+
   io.on('connection', (socket) => {
+    console.log('socket io connection successfully');
     console.log('A user connected:', socket.id);
 
     // Initialize module-specific socket handlers
