@@ -36,7 +36,7 @@ const sendMessage = async (chatId: string, senderId: string, content: string) =>
   // Populate sender info so socket broadcast includes user details
   await result.populate('sender');
 
-  await Chat.findByIdAndUpdate(chatId, { lastMessage: result._id });
+  await Chat.findByIdAndUpdate(finalChatId, { lastMessage: result._id });
   return result;
 };
 
