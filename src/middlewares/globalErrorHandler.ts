@@ -5,17 +5,11 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode = 500;
   let message = err?.message || 'Something went wrong!';
 
-  // Handle MongoDB Duplicate Key Error
+  // Handle Mongoose Duplicate Key Error
   if (err?.code === 11000) {
     statusCode = 400;
-    const field = Object.keys(err.keyPattern)[0];
-    message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists!`;
-  }
-
-  // Handle Validation Error
-  if (err?.name === 'ValidationError') {
-    statusCode = 400;
-    message = err.message;
+    const field = Object.keys(err.keyValue)[0];
+    message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
   }
 
   return res.status(statusCode).json({
@@ -24,7 +18,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     errorSources: [
       {
         path: '',
-        message: message,
+        message: err?.message || 'Unknown error',
       },
     ],
     stack: config.NODE_ENV === 'development' ? err?.stack : null,
