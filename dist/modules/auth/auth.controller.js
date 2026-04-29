@@ -9,6 +9,7 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
 const auth_service_1 = require("./auth.service");
 const registerUser = (0, catchAsync_1.default)(async (req, res) => {
+    console.log('Registering user with body:', req.body);
     const result = await auth_service_1.AuthService.registerUser(req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
@@ -17,7 +18,31 @@ const registerUser = (0, catchAsync_1.default)(async (req, res) => {
         data: result,
     });
 });
+const verifyOTP = (0, catchAsync_1.default)(async (req, res) => {
+    console.log('Verifying OTP with body:', req.body);
+    const result = await auth_service_1.AuthService.verifyOTP(req.body);
+    console.log(result, 'verifyOTP controller');
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'OTP verified successfully',
+        data: result,
+    });
+});
+const resendOTP = (0, catchAsync_1.default)(async (req, res) => {
+    console.log('Resending OTP with body:', req.body);
+    const { email } = req.body;
+    const result = await auth_service_1.AuthService.resendOTP(email);
+    console.log(result, 'resendOTP controller');
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'OTP resent successfully',
+        data: result,
+    });
+});
 const loginUser = (0, catchAsync_1.default)(async (req, res) => {
+    console.log('Logging in user with body:', req.body);
     const result = await auth_service_1.AuthService.loginUser(req.body);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
@@ -28,5 +53,7 @@ const loginUser = (0, catchAsync_1.default)(async (req, res) => {
 });
 exports.AuthController = {
     registerUser,
+    verifyOTP,
+    resendOTP,
     loginUser,
 };

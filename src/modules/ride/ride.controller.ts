@@ -3,6 +3,7 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { RideService } from './ride.service';
+import { getIo } from '../../socket/socket.io';
 
 const createRide = catchAsync(async (req: Request, res: Response) => {
   const rideData = { ...req.body, rider: req.user.userId };
@@ -44,6 +45,11 @@ const updateRide = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await RideService.updateRideIntoDB(id, req.body);
 
+  if (result) {
+    const io = getIo();
+    io.to(id).emit('ride-updated', result);
+  }
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -56,6 +62,11 @@ const acceptRide = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const driverId = req.user.userId;
   const result = await RideService.acceptRideRequest(id, driverId);
+
+  if (result) {
+    const io = getIo();
+    io.to(id).emit('ride-accepted', result);
+  }
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

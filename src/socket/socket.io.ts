@@ -2,6 +2,7 @@ import { Server as SocketServer } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { chatSocketHandlers } from '../modules/chat/chat.socket';
 import { callSocketHandlers } from '../modules/call/call.socket';
+import { rideSocketHandlers } from '../modules/ride/ride.socket';
 
 let io: SocketServer;
 
@@ -21,6 +22,7 @@ export const initializeSocket = (server: HttpServer) => {
     // Initialize module-specific socket handlers
     chatSocketHandlers(io, socket);
     callSocketHandlers(io, socket);
+    rideSocketHandlers(io, socket);
 
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id);
