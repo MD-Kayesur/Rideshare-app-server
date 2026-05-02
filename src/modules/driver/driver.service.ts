@@ -44,10 +44,62 @@ const getAllDrivers = async () => {
   return await Driver.find().populate('user');
 };
 
+const getNearbyDrivers = async (lat: number, lng: number, vehicleType?: string) => {
+  // 1. Find users with role 'driver' within radius (e.g., 5km)
+  const nearbyUsers = await User.find({
+    role: 'driver',
+    currentLocation: {
+      $near: {
+        $geometry: {
+          type: 'Point',
+          coordinates: [lng, lat],
+        },
+        $maxDistance: 5000, // 5 kilometers
+      },
+    },
+  });
+
+  if (!nearbyUsers.length) return [];
+
+  // 2. Find their corresponding driver profiles
+  const userIds = nearbyUsers.map(user => user._id);
+  const query: any = { user: { $in: userIds }, isVerified: true }; // Only verified drivers
+  if (vehicleType) {
+    query.vehicleType = vehicleType;
+  }
+
+  const drivers = await Driver.find(query).populate('user');
+  
+  // Combine user location with driver profile
+  return drivers.map(driver => {
+    const user = nearbyUsers.find(u => u._id.toString() === (driver.user as any)._id.toString());
+    return {
+      ...driver.toObject(),
+      distance: user ? 'Nearby' : 'Unknown', // In a real app, calculate actual distance
+    };
+  });
+};
+
+const getPendingDrivers = async () => {
+  return await Driver.find({ isVerified: false }).populate('user');
+};
+
+const verifyDriver = async (driverId: string) => {
+  const result = await Driver.findByIdAndUpdate(
+    driverId,
+    { isVerified: true },
+    { new: true }
+  ).populate('user');
+  return result;
+};
+
 export const DriverService = {
   createDriver,
   getDriverByUserId,
   updateDriver,
   deleteDriver,
   getAllDrivers,
+  getNearbyDrivers,
+  getPendingDrivers,
+  verifyDriver,
 };

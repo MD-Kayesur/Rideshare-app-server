@@ -11,6 +11,7 @@ export type TDriver = {
   vehicleImage?: string;
   licenseNumber?: string; // Optional for cycle
   details?: Record<string, any>; // For dynamic fields like AC/Non-AC for cars
+  isVerified: boolean;
   totalRides: number;
   totalEarnings: number;
   rating: number;

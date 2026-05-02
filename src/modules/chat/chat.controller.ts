@@ -32,10 +32,10 @@ const sendMessage = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
-  const { message, finalChatId } = await ChatService.sendMessage(chatId, senderId, content);
+  const io = getIo();
+  const { message, finalChatId } = await ChatService.sendMessage(chatId, senderId, content, io);
   
   // Emit real-time update to both the requested chatId and the actual finalChatId
-  const io = getIo();
   io.to(chatId).emit('new_message', message);
   if (finalChatId !== chatId) {
     io.to(finalChatId).emit('new_message', message);

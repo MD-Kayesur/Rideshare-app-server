@@ -33,6 +33,24 @@ router.get(
 );
 
 router.get(
+  '/nearby',
+  auth('rider', 'driver', 'admin'),
+  DriverController.getNearbyDrivers
+);
+
+router.get(
+  '/pending',
+  auth('admin'),
+  DriverController.getPendingDrivers
+);
+
+router.patch(
+  '/verify/:driverId',
+  auth('admin'),
+  DriverController.verifyDriver
+);
+
+router.get(
   '/:userId',
   auth('rider', 'driver', 'admin'),
   DriverController.getDriverById

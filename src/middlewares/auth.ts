@@ -26,7 +26,8 @@ const auth = (...requiredRoles: string[]) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new AppError(404, 'This user is not found !');
+      console.log('User not found for ID:', userId);
+      throw new AppError(404, `User not found for ID: ${userId}. Please login again.`);
     }
 
     if (requiredRoles && !requiredRoles.includes(role)) {

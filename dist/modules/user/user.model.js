@@ -24,6 +24,7 @@ const userSchema = new mongoose_1.Schema({
         coordinates: { type: [Number] },
     },
 }, { timestamps: true, collection: 'auth' });
+userSchema.index({ currentLocation: '2dsphere' });
 userSchema.pre('save', async function (next) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const user = this;
