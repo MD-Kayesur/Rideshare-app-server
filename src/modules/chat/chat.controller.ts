@@ -32,17 +32,20 @@ const sendMessage = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
-  const result = await ChatService.sendMessage(chatId, senderId, content);
-
-  // Emit real-time update
+  const { message, finalChatId } = await ChatService.sendMessage(chatId, senderId, content);
+  
+  // Emit real-time update to both the requested chatId and the actual finalChatId
   const io = getIo();
-  io.to(chatId).emit('new_message', result);
-
+  io.to(chatId).emit('new_message', message);
+  if (finalChatId !== chatId) {
+    io.to(finalChatId).emit('new_message', message);
+  }
+  
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
     message: 'Message sent successfully',
-    data: result,
+    data: message,
   });
 });
 

@@ -16,7 +16,7 @@ const createChat = async (participants: string[], rideId?: string) => {
   return result;
 };
 
-const sendMessage = async (chatId: string, senderId: string, content: string) => {
+const sendMessage = async (chatId: string, senderId: string, content: string, io: any) => {
   let finalChatId = chatId;
 
   // For testing purposes: handle 'default_chat_id'
@@ -54,8 +54,12 @@ const sendMessage = async (chatId: string, senderId: string, content: string) =>
     lastMessage: result._id 
   });
   
-  // Return freshly fetched populated message
-  return await Message.findById(result._id).populate('sender');
+  const populatedMessage = await Message.findById(newMessage._id).populate('sender');
+  
+  return {
+    message: populatedMessage,
+    finalChatId
+  };
 };
 
 const getMessagesByChatId = async (chatId: string, userId?: string) => {
