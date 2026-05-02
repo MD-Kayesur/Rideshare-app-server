@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Chat } from './chat.model';
 import { Message } from './message.model';
 
@@ -20,39 +21,66 @@ const sendMessage = async (chatId: string, senderId: string, content: string) =>
 
   // For testing purposes: handle 'default_chat_id'
   if (chatId === 'default_chat_id') {
-    let testChat = await Chat.findOne({ participants: senderId });
+    // Find any chat for this user
+    let testChat = await Chat.findOne({ 
+      participants: { $in: [new mongoose.Types.ObjectId(senderId)] } 
+    });
+    
     if (!testChat) {
-      testChat = await Chat.create({ participants: [senderId] });
+      // Create a new one if not found
+      testChat = await Chat.create({ 
+        participants: [new mongoose.Types.ObjectId(senderId)] 
+      });
     }
-    finalChatId = (testChat._id as any).toString();
+    finalChatId = testChat._id.toString();
   }
 
-  const result = await Message.create({
-    chat: finalChatId,
-    sender: senderId,
+  // Validate if finalChatId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(finalChatId)) {
+    throw new Error('Invalid Chat ID');
+  }
+
+  // Create message with explicit ObjectIds using .save() for reliability
+  const newMessage = new Message({
+    chat: new mongoose.Types.ObjectId(finalChatId),
+    sender: new mongoose.Types.ObjectId(senderId),
     content,
   });
 
-  // Populate sender info so socket broadcast includes user details
-  await result.populate('sender');
+  const result = await newMessage.save();
 
-  await Chat.findByIdAndUpdate(finalChatId, { lastMessage: result._id });
-  return result;
+  // Update last message in chat
+  await Chat.findByIdAndUpdate(finalChatId, { 
+    lastMessage: result._id 
+  });
+  
+  // Return freshly fetched populated message
+  return await Message.findById(result._id).populate('sender');
 };
 
-const getMessagesByChatId = async (chatId: string) => {
+const getMessagesByChatId = async (chatId: string, userId?: string) => {
   let finalChatId = chatId;
 
-  if (chatId === 'default_chat_id') {
+  if (chatId === 'default_chat_id' && userId) {
     const testChat = await Chat.findOne({
-      participants: { $exists: true },
+      participants: { $in: [new mongoose.Types.ObjectId(userId)] },
     });
     if (testChat) {
-      finalChatId = (testChat._id as any).toString();
+      finalChatId = testChat._id.toString();
+    } else {
+      return []; 
     }
   }
 
-  const result = await Message.find({ chat: finalChatId }).populate('sender');
+  // Final check for valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(finalChatId)) {
+    return [];
+  }
+
+  const result = await Message.find({ 
+    chat: new mongoose.Types.ObjectId(finalChatId) 
+  }).populate('sender');
+  
   return result;
 };
 

@@ -7,7 +7,7 @@ const chatSchema = new Schema<TChat>(
     lastMessage: { type: Schema.Types.ObjectId, ref: 'Message' },
     rideId: { type: Schema.Types.ObjectId, ref: 'Ride' },
   },
-  { timestamps: true },
+  { timestamps: true, collection: 'chats' },
 );
 
 export const Chat = model<TChat>('Chat', chatSchema);
