@@ -48,6 +48,7 @@ const getNearbyDrivers = async (lat: number, lng: number, vehicleType?: string) 
   // 1. Find users with role 'driver' within radius (e.g., 5km)
   const nearbyUsers = await User.find({
     role: 'driver',
+    isOnline: true,
     currentLocation: {
       $near: {
         $geometry: {
