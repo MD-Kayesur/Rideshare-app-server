@@ -3,10 +3,23 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { DriverService } from './driver.service';
+import { getIo } from '../../socket/socket.io';
+import { NotificationService } from '../notification/notification.service';
 
 const createDriver = catchAsync(async (req: Request, res: Response) => {
   const userId = (req as any).user.userId;
   const result = await DriverService.createDriver(userId, req.body);
+
+  // Create persistent notification
+  const notification = await NotificationService.createNotification({
+    title: 'New Driver Registration',
+    message: `A new driver has applied for verification: ${req.body.vehicleModel}`,
+    type: 'driver_request'
+  });
+
+  // Emit real-time notification to admin
+  const io = getIo();
+  io.emit('admin_notification', notification);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,

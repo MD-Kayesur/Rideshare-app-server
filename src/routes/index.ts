@@ -43,6 +43,10 @@ const moduleRoutes = [
     path: '/complaints',
     route: ComplaintRoutes,
   },
+  {
+    path: '/notifications',
+    route: NotificationRoutes,
+  },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
