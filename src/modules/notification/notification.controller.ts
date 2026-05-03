@@ -27,7 +27,20 @@ const markAsRead = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyNotifications = catchAsync(async (req: Request & { user?: any }, res: Response) => {
+  const userId = req.user?.userId;
+  const result = await NotificationService.getNotificationsForUser(userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'My notifications fetched successfully',
+    data: result,
+  });
+});
+
 export const NotificationController = {
   getAllNotifications,
   markAsRead,
+  getMyNotifications,
 };

@@ -44,13 +44,10 @@ const sendMessage = catchAsync(async (req: Request, res: Response) => {
   }
 
   const io = getIo();
-  const { message, finalChatId } = await ChatService.sendMessage(chatId, senderId, content, io);
+  const { message } = await ChatService.sendMessage(chatId, senderId, content, io);
   
-  // Emit real-time update to both the requested chatId and the actual finalChatId
+  // Emit real-time update to the chat room
   io.to(chatId).emit('new_message', message);
-  if (finalChatId !== chatId) {
-    io.to(finalChatId).emit('new_message', message);
-  }
   
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
