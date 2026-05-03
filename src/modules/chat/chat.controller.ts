@@ -93,9 +93,23 @@ const getMyChats = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const markMessagesAsRead = catchAsync(async (req: Request, res: Response) => {
+  const { chatId } = req.params;
+  const userId = req.user.userId;
+  const result = await ChatService.markMessagesAsRead(chatId, userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Messages marked as read successfully',
+    data: result,
+  });
+});
+
 export const ChatController = {
   createChat,
   sendMessage,
   getMessages,
   getMyChats,
+  markMessagesAsRead,
 };

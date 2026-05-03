@@ -68,20 +68,20 @@ const sendMessage = async (chatId: string, senderId: string, content: string, io
     if (chat) {
         // Find the other participant (the one who isn't the admin)
         const recipientId = chat.participants.find(p => p.toString() !== sender._id.toString());
-        // if (recipientId) {
-        //     const { NotificationService } = require('../notification/notification.service');
-        //     await NotificationService.createNotification({
-        //         recipient: recipientId.toString(),
-        //         title: 'New Administrative Message',
-        //         message: `Admin: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
-        //         type: 'chat',
-        //         metadata: {
-        //             chatId: finalChatId,
-        //             userId: sender._id.toString(),
-        //             userName: sender.name
-        //         }
-        //     });
-        // }
+        if (recipientId) {
+            const { NotificationService } = require('../notification/notification.service');
+            await NotificationService.createNotification({
+                recipient: recipientId.toString(),
+                title: 'New Administrative Message',
+                message: `Admin: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+                type: 'chat',
+                metadata: {
+                    chatId: finalChatId,
+                    userId: sender._id.toString(),
+                    userName: sender.name
+                }
+            });
+        }
     }
   }
 
@@ -107,10 +107,31 @@ const getMessagesByChatId = async (chatId: string, userId?: string) => {
 };
 
 const getMyChats = async (userId: string) => {
-  const result = await Chat.find({ participants: userId })
+  const chats = await Chat.find({ participants: userId })
     .populate('participants')
-    .populate('lastMessage');
+    .populate('lastMessage')
+    .sort({ updatedAt: -1 });
+
+  const result = await Promise.all(chats.map(async (chat) => {
+    const unreadCount = await Message.countDocuments({
+      chat: chat._id,
+      sender: { $ne: userId },
+      isRead: false
+    });
+    return {
+      ...chat.toObject(),
+      unreadCount
+    };
+  }));
+
   return result;
+};
+
+const markMessagesAsRead = async (chatId: string, userId: string) => {
+    return await Message.updateMany(
+        { chat: chatId, sender: { $ne: userId }, isRead: false },
+        { isRead: true }
+    );
 };
 
 export const ChatService = {
@@ -118,4 +139,5 @@ export const ChatService = {
   sendMessage,
   getMessagesByChatId,
   getMyChats,
+  markMessagesAsRead,
 };
