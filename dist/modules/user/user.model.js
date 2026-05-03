@@ -23,11 +23,15 @@ const userSchema = new mongoose_1.Schema({
         type: { type: String, enum: ['Point'] },
         coordinates: { type: [Number] },
     },
-}, { timestamps: true });
+}, { timestamps: true, collection: 'auth' });
+userSchema.index({ currentLocation: '2dsphere' });
 userSchema.pre('save', async function (next) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const user = this;
-    user.password = await bcryptjs_1.default.hash(user.password, Number(config_1.default.bcrypt_salt_rounds));
+    // Only hash the password if it has been modified (or is new)
+    if (user.isModified('password')) {
+        user.password = await bcryptjs_1.default.hash(user.password, Number(config_1.default.bcrypt_salt_rounds));
+    }
     next();
 });
 exports.User = (0, mongoose_1.model)('User', userSchema);

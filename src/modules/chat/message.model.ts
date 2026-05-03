@@ -8,7 +8,7 @@ const messageSchema = new Schema<TMessage>(
     content: { type: String, required: true },
     isRead: { type: Boolean, default: false },
   },
-  { timestamps: true },
+  { timestamps: true, collection: 'messages' },
 );
 
 export const Message = model<TMessage>('Message', messageSchema);

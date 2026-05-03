@@ -5,6 +5,9 @@ import { RideRoutes } from '../modules/ride/ride.route';
 import { ChatRoutes } from '../modules/chat/chat.route';
 import { CallRoutes } from '../modules/call/call.route';
 import { PaymentRoutes } from '../modules/payment/payment.route';
+import { DriverRoutes } from '../modules/driver/driver.route';
+import { ComplaintRoutes } from '../modules/complaint/complaint.route';
+import { NotificationRoutes } from '../modules/notification/notification.route';
 
 const router = Router();
 
@@ -32,6 +35,18 @@ const moduleRoutes = [
   {
     path: '/payments',
     route: PaymentRoutes,
+  },
+  {
+    path: '/drivers',
+    route: DriverRoutes,
+  },
+  {
+    path: '/complaints',
+    route: ComplaintRoutes,
+  },
+  {
+    path: '/notifications',
+    route: NotificationRoutes,
   },
 ];
 

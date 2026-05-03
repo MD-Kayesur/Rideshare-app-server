@@ -4,6 +4,7 @@ export type TChat = {
   participants: Types.ObjectId[];
   lastMessage?: Types.ObjectId;
   rideId?: Types.ObjectId;
+  messageCount?: number;
 };
 
 export type TMessage = {

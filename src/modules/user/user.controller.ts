@@ -64,10 +64,52 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const toggleOnlineStatus = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.user;
+  const { isOnline } = req.body;
+  const result = await UserService.toggleOnlineStatus(userId, isOnline);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Online status updated successfully',
+    data: result,
+  });
+});
+
+const updateLocation = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.user;
+  const { longitude, latitude } = req.body;
+  const result = await UserService.updateLocation(userId, longitude, latitude);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Location updated successfully',
+    data: result,
+  });
+});
+
+const banUser = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { isBanned } = req.body;
+  const result = await UserService.banUser(id, isBanned);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `User ${isBanned ? 'banned' : 'unbanned'} successfully`,
+    data: result,
+  });
+});
+
 export const UserController = {
   getAllUsers,
   getSingleUser,
   updateUser,
   deleteUser,
   getMe,
+  toggleOnlineStatus,
+  updateLocation,
+  banUser,
 };
