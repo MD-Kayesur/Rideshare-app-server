@@ -8,7 +8,18 @@ import { getIo } from '../../socket/socket.io';
 
 const createChat = catchAsync(async (req: Request, res: Response) => {
   const { participants, rideId } = req.body;
-  const result = await ChatService.createChat(participants, rideId);
+  const senderId = req.user.userId;
+  
+  // Validate participants
+  const participantsArray = Array.isArray(participants) ? participants : [];
+  
+  // Filter out any null/undefined or invalid ObjectIds to prevent 500 errors
+  const validParticipants = participantsArray.filter(p => p && mongoose.Types.ObjectId.isValid(p));
+  
+  // Ensure the creator is part of the chat
+  const allParticipants = [...new Set([...validParticipants, senderId])].filter(p => mongoose.Types.ObjectId.isValid(p as string));
+  
+  const result = await ChatService.createChat(allParticipants as string[], rideId);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,

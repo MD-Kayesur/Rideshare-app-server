@@ -15,4 +15,6 @@ export type TDriver = {
   totalRides: number;
   totalEarnings: number;
   rating: number;
+  driverBio?: string;
+  driverPhoto?: string;
 };

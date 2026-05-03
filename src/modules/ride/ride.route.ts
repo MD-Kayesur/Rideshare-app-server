@@ -24,6 +24,34 @@ router.patch(
   RideController.updateRide,
 );
 
-router.patch('/:id/accept', auth('driver'), RideController.acceptRide);
+router.patch(
+  '/:rideId/accept',
+  auth('driver'),
+  RideController.acceptRideRequest,
+);
+
+router.patch(
+  '/:rideId/start',
+  auth('driver'),
+  RideController.startRide,
+);
+
+router.patch(
+  '/:rideId/complete',
+  auth('driver'),
+  RideController.completeRide,
+);
+
+router.patch(
+  '/:rideId/cancel',
+  auth('rider', 'driver', 'admin'),
+  RideController.cancelRide,
+);
+
+router.patch(
+  '/:rideId/rate',
+  auth('rider', 'driver'),
+  RideController.rateRide,
+);
 
 export const RideRoutes = router;

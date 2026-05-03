@@ -12,6 +12,13 @@ export type TUser = {
   avatar?: string;
   rating?: number;
   isVerified?: boolean;
+  isOnline?: boolean; // For drivers
+  isBanned?: boolean; // For admin control
+  favouriteLocations?: {
+    name: string;
+    address: string;
+    coordinates: number[];
+  }[];
   currentLocation?: {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]

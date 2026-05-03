@@ -15,6 +15,8 @@ const driverSchema = new Schema<TDriver>(
     totalRides: { type: Number, default: 0 },
     totalEarnings: { type: Number, default: 0 },
     rating: { type: Number, default: 5 },
+    driverBio: { type: String },
+    driverPhoto: { type: String },
   },
   { timestamps: true },
 );

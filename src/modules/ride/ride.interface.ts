@@ -20,5 +20,9 @@ export type TRide = {
   duration: number;
   status: TRideStatus;
   paymentStatus: 'pending' | 'paid';
-  rideType: 'bike' | 'car';
+  paymentMethod: 'cash' | 'card';
+  rideType: 'bike' | 'car' | 'cng' | 'cycle';
+  riderRating?: number;
+  driverRating?: number;
+  otp?: string;
 };

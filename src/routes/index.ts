@@ -7,6 +7,7 @@ import { CallRoutes } from '../modules/call/call.route';
 import { PaymentRoutes } from '../modules/payment/payment.route';
 import { DriverRoutes } from '../modules/driver/driver.route';
 import { ComplaintRoutes } from '../modules/complaint/complaint.route';
+import { NotificationRoutes } from '../modules/notification/notification.route';
 
 const router = Router();
 

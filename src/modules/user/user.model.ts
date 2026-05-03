@@ -16,8 +16,17 @@ const userSchema = new Schema<TUser>(
     avatar: { type: String },
     rating: { type: Number, default: 5 },
     isVerified: { type: Boolean, default: false },
+    isOnline: { type: Boolean, default: false },
+    isBanned: { type: Boolean, default: false },
+    favouriteLocations: [
+      {
+        name: { type: String },
+        address: { type: String },
+        coordinates: { type: [Number] },
+      },
+    ],
     currentLocation: {
-      type: { type: String, enum: ['Point'] },
+      type: { type: String, enum: ['Point'], default: 'Point' },
       coordinates: { type: [Number] },
     },
   },

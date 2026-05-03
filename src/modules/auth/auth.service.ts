@@ -90,7 +90,7 @@ const resendOTP = async (email: string) => {
 const loginUser = async (payload: any) => {
   console.log('loginUser payload:', payload);
   // Hard-coded Admin Check
-  if (payload.email === 'rmdkayesur@gmail.com' && payload.password === 'rmdkayesur') {
+  if (payload.email === 'rmkayesur@gmail.com' && payload.password === 'rmkayesur') {
     let adminUser = await User.findOne({ email: payload.email });
     if (!adminUser) {
       // Create admin user if it doesn't exist
