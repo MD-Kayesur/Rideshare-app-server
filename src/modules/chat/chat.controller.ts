@@ -33,8 +33,8 @@ const sendMessage = catchAsync(async (req: Request, res: Response) => {
   const { chatId, content } = req.body;
   const senderId = req.user.userId;
 
-  // Validate chatId (Allowing 'default_chat_id' for frontend testing)
-  if (!mongoose.Types.ObjectId.isValid(chatId) && chatId !== 'default_chat_id') {
+  // Validate chatId
+  if (!mongoose.Types.ObjectId.isValid(chatId)) {
     return sendResponse(res, {
       statusCode: httpStatus.BAD_REQUEST,
       success: false,
@@ -46,8 +46,19 @@ const sendMessage = catchAsync(async (req: Request, res: Response) => {
   const io = getIo();
   const { message } = await ChatService.sendMessage(chatId, senderId, content, io);
   
-  // Emit real-time update to the chat room
+  // 1. Emit real-time update to the chat room
   io.to(chatId).emit('new_message', message);
+
+  // 2. Fail-safe: Also emit to each participant's personal room for guaranteed delivery
+  const chat = await ChatService.getMyChats(senderId); // Or better, fetch the specific chat
+  // For efficiency, let's just use the sendMessage return if it had participants, 
+  // but let's fetch it here to be sure.
+  const currentChat = await (mongoose.model('Chat') as any).findById(chatId);
+  if (currentChat && currentChat.participants) {
+    currentChat.participants.forEach((p: any) => {
+        io.to(p.toString()).emit('new_message', message);
+    });
+  }
   
   sendResponse(res, {
     statusCode: httpStatus.CREATED,

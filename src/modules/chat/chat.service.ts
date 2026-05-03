@@ -3,7 +3,10 @@ import { Chat } from './chat.model';
 import { Message } from './message.model';
 
 const createChat = async (participants: string[], rideId?: string) => {
-  const participantObjectIds = participants.map(p => new mongoose.Types.ObjectId(p));
+  // Sort participants to ensure consistent matching regardless of order
+  const participantObjectIds = participants
+    .map(p => new mongoose.Types.ObjectId(p))
+    .sort((a, b) => a.toString().localeCompare(b.toString()));
   
   // Find a chat with EXACTLY these participants
   const query: any = {
@@ -15,10 +18,13 @@ const createChat = async (participants: string[], rideId?: string) => {
 
   if (rideId) {
     query.rideId = new mongoose.Types.ObjectId(rideId);
+  } else {
+    // Prefer a general chat (no rideId)
+    const generalChat = await Chat.findOne({ ...query, rideId: { $exists: false } });
+    if (generalChat) return generalChat;
   }
 
   const existingChat = await Chat.findOne(query);
-
   if (existingChat) {
     return existingChat;
   }
