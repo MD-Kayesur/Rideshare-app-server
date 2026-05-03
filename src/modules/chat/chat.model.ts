@@ -6,6 +6,7 @@ const chatSchema = new Schema<TChat>(
     participants: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
     lastMessage: { type: Schema.Types.ObjectId, ref: 'Message' },
     rideId: { type: Schema.Types.ObjectId, ref: 'Ride' },
+    messageCount: { type: Number, default: 0 },
   },
   { timestamps: true, collection: 'chats' },
 );

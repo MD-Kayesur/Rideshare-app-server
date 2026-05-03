@@ -53,9 +53,10 @@ const sendMessage = async (chatId: string, senderId: string, content: string, io
 
   const result = await newMessage.save();
 
-  // Update last message in chat
+  // Update last message in chat and increment count
   await Chat.findByIdAndUpdate(finalChatId, { 
-    lastMessage: result._id 
+    lastMessage: result._id,
+    $inc: { messageCount: 1 }
   });
   
   const populatedMessage = await Message.findById(newMessage._id).populate('sender');
@@ -67,20 +68,20 @@ const sendMessage = async (chatId: string, senderId: string, content: string, io
     if (chat) {
         // Find the other participant (the one who isn't the admin)
         const recipientId = chat.participants.find(p => p.toString() !== sender._id.toString());
-        if (recipientId) {
-            const { NotificationService } = require('../notification/notification.service');
-            await NotificationService.createNotification({
-                recipient: recipientId.toString(),
-                title: 'New Administrative Message',
-                message: `Admin: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
-                type: 'chat',
-                metadata: {
-                    chatId: finalChatId,
-                    userId: sender._id.toString(),
-                    userName: sender.name
-                }
-            });
-        }
+        // if (recipientId) {
+        //     const { NotificationService } = require('../notification/notification.service');
+        //     await NotificationService.createNotification({
+        //         recipient: recipientId.toString(),
+        //         title: 'New Administrative Message',
+        //         message: `Admin: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+        //         type: 'chat',
+        //         metadata: {
+        //             chatId: finalChatId,
+        //             userId: sender._id.toString(),
+        //             userName: sender.name
+        //         }
+        //     });
+        // }
     }
   }
 
