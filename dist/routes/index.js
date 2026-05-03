@@ -7,6 +7,8 @@ const ride_route_1 = require("../modules/ride/ride.route");
 const chat_route_1 = require("../modules/chat/chat.route");
 const call_route_1 = require("../modules/call/call.route");
 const payment_route_1 = require("../modules/payment/payment.route");
+const driver_route_1 = require("../modules/driver/driver.route");
+const complaint_route_1 = require("../modules/complaint/complaint.route");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -32,6 +34,14 @@ const moduleRoutes = [
     {
         path: '/payments',
         route: payment_route_1.PaymentRoutes,
+    },
+    {
+        path: '/drivers',
+        route: driver_route_1.DriverRoutes,
+    },
+    {
+        path: '/complaints',
+        route: complaint_route_1.ComplaintRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

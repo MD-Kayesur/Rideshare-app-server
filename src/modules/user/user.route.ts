@@ -13,10 +13,28 @@ router.get('/me', auth('rider', 'driver', 'admin'), UserController.getMe);
 router.get('/:id', auth('admin'), UserController.getSingleUser);
 
 router.patch(
+  '/toggle-online',
+  auth('driver'),
+  UserController.toggleOnlineStatus,
+);
+
+router.patch(
+  '/update-location',
+  auth('rider', 'driver'),
+  UserController.updateLocation,
+);
+
+router.patch(
   '/:id',
   auth('admin', 'rider', 'driver'),
   validateRequest(UserValidation.updateUserValidationSchema),
   UserController.updateUser,
+);
+
+router.patch(
+  '/:id/ban',
+  auth('admin'),
+  UserController.banUser,
 );
 
 router.delete('/:id', auth('admin'), UserController.deleteUser);

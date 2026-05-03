@@ -4,6 +4,7 @@ exports.getIo = exports.initializeSocket = void 0;
 const socket_io_1 = require("socket.io");
 const chat_socket_1 = require("../modules/chat/chat.socket");
 const call_socket_1 = require("../modules/call/call.socket");
+const ride_socket_1 = require("../modules/ride/ride.socket");
 let io;
 const initializeSocket = (server) => {
     io = new socket_io_1.Server(server, {
@@ -11,12 +12,14 @@ const initializeSocket = (server) => {
             origin: '*',
         },
     });
-    console.log('Socket.io initialized and waiting for connections');
+    console.log('socket io connection successfully');
     io.on('connection', (socket) => {
+        console.log('socket io connection successfully');
         console.log('A user connected:', socket.id);
         // Initialize module-specific socket handlers
         (0, chat_socket_1.chatSocketHandlers)(io, socket);
         (0, call_socket_1.callSocketHandlers)(io, socket);
+        (0, ride_socket_1.rideSocketHandlers)(io, socket);
         socket.on('disconnect', () => {
             console.log('User disconnected:', socket.id);
         });

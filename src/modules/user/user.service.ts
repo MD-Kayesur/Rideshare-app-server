@@ -42,10 +42,45 @@ const getMe = async (userId: string) => {
   return result;
 };
 
+const toggleOnlineStatus = async (userId: string, isOnline: boolean) => {
+  const result = await User.findByIdAndUpdate(
+    userId,
+    { isOnline },
+    { new: true }
+  );
+  return result;
+};
+
+const updateLocation = async (userId: string, longitude: number, latitude: number) => {
+  const result = await User.findByIdAndUpdate(
+    userId,
+    { 
+      currentLocation: { 
+        type: 'Point', 
+        coordinates: [longitude, latitude] 
+      } 
+    },
+    { new: true }
+  );
+  return result;
+};
+
+const banUser = async (userId: string, isBanned: boolean) => {
+  const result = await User.findByIdAndUpdate(
+    userId,
+    { isBanned },
+    { new: true }
+  );
+  return result;
+};
+
 export const UserService = {
   getAllUsersFromDB,
   getSingleUserFromDB,
   updateUserIntoDB,
   deleteUserFromDB,
   getMe,
+  toggleOnlineStatus,
+  updateLocation,
+  banUser,
 };

