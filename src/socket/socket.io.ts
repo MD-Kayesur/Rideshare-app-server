@@ -24,6 +24,11 @@ export const initializeSocket = (server: HttpServer) => {
     callSocketHandlers(io, socket);
     rideSocketHandlers(io, socket);
 
+    socket.on('join', (userId: string) => {
+      socket.join(userId);
+      console.log(`User ${userId} joined their personal room`);
+    });
+
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id);
     });
