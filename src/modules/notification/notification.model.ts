@@ -4,7 +4,7 @@ export interface TNotification extends Document {
   recipient: Schema.Types.ObjectId;
   title: string;
   message: string;
-  type: 'complaint' | 'driver_request' | 'ride_update' | 'payment';
+  type: 'complaint' | 'driver_request' | 'ride_update' | 'payment' | 'chat';
   isRead: boolean;
   metadata?: Record<string, any>;
   createdAt: Date;
@@ -18,7 +18,7 @@ const notificationSchema = new Schema<TNotification>(
     message: { type: String, required: true },
     type: {
       type: String,
-      enum: ['complaint', 'driver_request', 'ride_update', 'payment'],
+      enum: ['complaint', 'driver_request', 'ride_update', 'payment', 'chat'],
       required: true,
     },
     isRead: { type: Boolean, default: false },

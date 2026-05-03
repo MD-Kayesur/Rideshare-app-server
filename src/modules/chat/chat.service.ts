@@ -60,6 +60,30 @@ const sendMessage = async (chatId: string, senderId: string, content: string, io
   
   const populatedMessage = await Message.findById(newMessage._id).populate('sender');
   
+  // Create notification if Admin sends a message to a non-admin
+  const sender = populatedMessage?.sender as any;
+  if (sender && sender.role === 'admin') {
+    const chat = await Chat.findById(finalChatId);
+    if (chat) {
+        // Find the other participant (the one who isn't the admin)
+        const recipientId = chat.participants.find(p => p.toString() !== sender._id.toString());
+        if (recipientId) {
+            const { NotificationService } = require('../notification/notification.service');
+            await NotificationService.createNotification({
+                recipient: recipientId.toString(),
+                title: 'New Administrative Message',
+                message: `Admin: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+                type: 'chat',
+                metadata: {
+                    chatId: finalChatId,
+                    userId: sender._id.toString(),
+                    userName: sender.name
+                }
+            });
+        }
+    }
+  }
+
   return {
     message: populatedMessage,
     finalChatId
