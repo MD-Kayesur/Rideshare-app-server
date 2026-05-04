@@ -8,32 +8,38 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const chat_model_1 = require("./chat.model");
 const message_model_1 = require("./message.model");
 const createChat = async (participants, rideId) => {
-    const existingChat = await chat_model_1.Chat.findOne({
-        participants: { $all: participants },
-        rideId,
-    });
+    // Sort participants to ensure consistent matching regardless of order
+    const participantObjectIds = participants
+        .map(p => new mongoose_1.default.Types.ObjectId(p))
+        .sort((a, b) => a.toString().localeCompare(b.toString()));
+    // Find a chat with EXACTLY these participants
+    const query = {
+        participants: {
+            $all: participantObjectIds,
+            $size: participantObjectIds.length
+        }
+    };
+    if (rideId) {
+        query.rideId = new mongoose_1.default.Types.ObjectId(rideId);
+    }
+    else {
+        // Prefer a general chat (no rideId)
+        const generalChat = await chat_model_1.Chat.findOne({ ...query, rideId: { $exists: false } });
+        if (generalChat)
+            return generalChat;
+    }
+    const existingChat = await chat_model_1.Chat.findOne(query);
     if (existingChat) {
         return existingChat;
     }
-    const result = await chat_model_1.Chat.create({ participants, rideId });
+    const result = await chat_model_1.Chat.create({
+        participants: participantObjectIds,
+        rideId: rideId ? new mongoose_1.default.Types.ObjectId(rideId) : undefined
+    });
     return result;
 };
 const sendMessage = async (chatId, senderId, content, io) => {
-    let finalChatId = chatId;
-    // For testing purposes: handle 'default_chat_id'
-    if (chatId === 'default_chat_id') {
-        // Find any chat for this user
-        let testChat = await chat_model_1.Chat.findOne({
-            participants: { $in: [new mongoose_1.default.Types.ObjectId(senderId)] }
-        });
-        if (!testChat) {
-            // Create a new one if not found
-            testChat = await chat_model_1.Chat.create({
-                participants: [new mongoose_1.default.Types.ObjectId(senderId)]
-            });
-        }
-        finalChatId = testChat._id.toString();
-    }
+    const finalChatId = chatId;
     // Validate if finalChatId is a valid ObjectId
     if (!mongoose_1.default.Types.ObjectId.isValid(finalChatId)) {
         throw new Error('Invalid Chat ID');
@@ -45,29 +51,42 @@ const sendMessage = async (chatId, senderId, content, io) => {
         content,
     });
     const result = await newMessage.save();
-    // Update last message in chat
+    // Update last message in chat and increment count
     await chat_model_1.Chat.findByIdAndUpdate(finalChatId, {
-        lastMessage: result._id
+        lastMessage: result._id,
+        $inc: { messageCount: 1 }
     });
     const populatedMessage = await message_model_1.Message.findById(newMessage._id).populate('sender');
+    // Create notification if Admin sends a message to a non-admin
+    const sender = populatedMessage?.sender;
+    if (sender && sender.role === 'admin') {
+        const chat = await chat_model_1.Chat.findById(finalChatId);
+        if (chat) {
+            // Find the other participant (the one who isn't the admin)
+            const recipientId = chat.participants.find(p => p.toString() !== sender._id.toString());
+            if (recipientId) {
+                const { NotificationService } = require('../notification/notification.service');
+                await NotificationService.createNotification({
+                    recipient: recipientId.toString(),
+                    title: 'New Administrative Message',
+                    message: `Admin: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+                    type: 'chat',
+                    metadata: {
+                        chatId: finalChatId,
+                        userId: sender._id.toString(),
+                        userName: sender.name
+                    }
+                });
+            }
+        }
+    }
     return {
         message: populatedMessage,
         finalChatId
     };
 };
 const getMessagesByChatId = async (chatId, userId) => {
-    let finalChatId = chatId;
-    if (chatId === 'default_chat_id' && userId) {
-        const testChat = await chat_model_1.Chat.findOne({
-            participants: { $in: [new mongoose_1.default.Types.ObjectId(userId)] },
-        });
-        if (testChat) {
-            finalChatId = testChat._id.toString();
-        }
-        else {
-            return [];
-        }
-    }
+    const finalChatId = chatId;
     // Final check for valid ObjectId
     if (!mongoose_1.default.Types.ObjectId.isValid(finalChatId)) {
         return [];
@@ -78,14 +97,30 @@ const getMessagesByChatId = async (chatId, userId) => {
     return result;
 };
 const getMyChats = async (userId) => {
-    const result = await chat_model_1.Chat.find({ participants: userId })
+    const chats = await chat_model_1.Chat.find({ participants: userId })
         .populate('participants')
-        .populate('lastMessage');
+        .populate('lastMessage')
+        .sort({ updatedAt: -1 });
+    const result = await Promise.all(chats.map(async (chat) => {
+        const unreadCount = await message_model_1.Message.countDocuments({
+            chat: chat._id,
+            sender: { $ne: userId },
+            isRead: false
+        });
+        return {
+            ...chat.toObject(),
+            unreadCount
+        };
+    }));
     return result;
+};
+const markMessagesAsRead = async (chatId, userId) => {
+    return await message_model_1.Message.updateMany({ chat: chatId, sender: { $ne: userId }, isRead: false }, { isRead: true });
 };
 exports.ChatService = {
     createChat,
     sendMessage,
     getMessagesByChatId,
     getMyChats,
+    markMessagesAsRead,
 };

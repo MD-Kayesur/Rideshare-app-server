@@ -5,15 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendEmail = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
-const config_1 = __importDefault(require("../config"));
 const sendEmail = async (to, subject, html) => {
     const transporter = nodemailer_1.default.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
         secure: false, // true for 465, false for other ports
         auth: {
-            user: config_1.default.email_user, // your email
-            pass: config_1.default.email_pass, // your email password or app password
+            // user: config.email_user, // your email
+            user: "rmdkayesur@gmail.com", // your email
+            pass: "kayes1122", // your email password or app password
+            // pass: config.email_pass, // your email password or app password
         },
     });
     await transporter.sendMail({

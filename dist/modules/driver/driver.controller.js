@@ -8,9 +8,20 @@ const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const driver_service_1 = require("./driver.service");
+const socket_io_1 = require("../../socket/socket.io");
+const notification_service_1 = require("../notification/notification.service");
 const createDriver = (0, catchAsync_1.default)(async (req, res) => {
     const userId = req.user.userId;
     const result = await driver_service_1.DriverService.createDriver(userId, req.body);
+    // Create persistent notification
+    const notification = await notification_service_1.NotificationService.createNotification({
+        title: 'New Driver Registration',
+        message: `A new driver has applied for verification: ${req.body.vehicleModel}`,
+        type: 'driver_request'
+    });
+    // Emit real-time notification to admin
+    const io = (0, socket_io_1.getIo)();
+    io.emit('admin_notification', notification);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,

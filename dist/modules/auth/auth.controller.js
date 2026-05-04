@@ -11,6 +11,7 @@ const auth_service_1 = require("./auth.service");
 const registerUser = (0, catchAsync_1.default)(async (req, res) => {
     console.log('Registering user with body:', req.body);
     const result = await auth_service_1.AuthService.registerUser(req.body);
+    console.log(result, 'result');
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
