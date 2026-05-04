@@ -21,9 +21,10 @@ const auth = (...requiredRoles) => {
         // checking if the user is exist
         const user = await user_model_1.User.findById(userId);
         if (!user) {
-            throw new AppError_1.default(404, 'This user is not found !');
+            console.log('User not found for ID:', userId);
+            throw new AppError_1.default(404, `User not found for ID: ${userId}. Please login again.`);
         }
-        if (requiredRoles && !requiredRoles.includes(role)) {
+        if (requiredRoles && !requiredRoles.includes(user.role)) {
             throw new AppError_1.default(401, 'You are not authorized !');
         }
         req.user = decoded;

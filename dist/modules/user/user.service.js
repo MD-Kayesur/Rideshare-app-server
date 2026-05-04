@@ -39,10 +39,30 @@ const getMe = async (userId) => {
     const result = await user_model_1.User.findById(userId);
     return result;
 };
+const toggleOnlineStatus = async (userId, isOnline) => {
+    const result = await user_model_1.User.findByIdAndUpdate(userId, { isOnline }, { new: true });
+    return result;
+};
+const updateLocation = async (userId, longitude, latitude) => {
+    const result = await user_model_1.User.findByIdAndUpdate(userId, {
+        currentLocation: {
+            type: 'Point',
+            coordinates: [longitude, latitude]
+        }
+    }, { new: true });
+    return result;
+};
+const banUser = async (userId, isBanned) => {
+    const result = await user_model_1.User.findByIdAndUpdate(userId, { isBanned }, { new: true });
+    return result;
+};
 exports.UserService = {
     getAllUsersFromDB,
     getSingleUserFromDB,
     updateUserIntoDB,
     deleteUserFromDB,
     getMe,
+    toggleOnlineStatus,
+    updateLocation,
+    banUser,
 };

@@ -6,5 +6,6 @@ const chatSchema = new mongoose_1.Schema({
     participants: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true }],
     lastMessage: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Message' },
     rideId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Ride' },
+    messageCount: { type: Number, default: 0 },
 }, { timestamps: true, collection: 'chats' });
 exports.Chat = (0, mongoose_1.model)('Chat', chatSchema);

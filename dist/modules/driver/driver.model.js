@@ -15,5 +15,7 @@ const driverSchema = new mongoose_1.Schema({
     totalRides: { type: Number, default: 0 },
     totalEarnings: { type: Number, default: 0 },
     rating: { type: Number, default: 5 },
+    driverBio: { type: String },
+    driverPhoto: { type: String },
 }, { timestamps: true });
 exports.Driver = (0, mongoose_1.model)('Driver', driverSchema);

@@ -15,7 +15,7 @@ const createRideValidationSchema = zod_1.z.object({
         fare: zod_1.z.number(),
         distance: zod_1.z.number(),
         duration: zod_1.z.number(),
-        rideType: zod_1.z.enum(['bike', 'car']),
+        rideType: zod_1.z.enum(['bike', 'car', 'cng', 'cycle']),
     }),
 });
 const updateRideStatusValidationSchema = zod_1.z.object({

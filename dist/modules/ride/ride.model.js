@@ -23,12 +23,12 @@ const rideSchema = new mongoose_1.Schema({
         enum: ['pending', 'accepted', 'ongoing', 'completed', 'cancelled'],
         default: 'pending',
     },
-    paymentStatus: {
-        type: String,
-        enum: ['pending', 'paid'],
-        default: 'pending',
-    },
-    rideType: { type: String, enum: ['bike', 'car'], required: true },
+    paymentStatus: { type: String, enum: ['pending', 'paid'], default: 'pending' },
+    paymentMethod: { type: String, enum: ['cash', 'card'], default: 'cash' },
+    rideType: { type: String, enum: ['bike', 'car', 'cng', 'cycle'], required: true },
+    riderRating: { type: Number },
+    driverRating: { type: Number },
+    otp: { type: String },
 }, { timestamps: true });
 rideSchema.index({ pickupLocation: '2dsphere' });
 rideSchema.index({ destinationLocation: '2dsphere' });

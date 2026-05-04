@@ -14,5 +14,9 @@ router.post('/', (0, auth_1.default)('rider'), (0, validateRequest_1.default)(ri
 router.get('/', (0, auth_1.default)('admin', 'driver', 'rider'), ride_controller_1.RideController.getAllRides);
 router.get('/:id', (0, auth_1.default)('admin', 'driver', 'rider'), ride_controller_1.RideController.getSingleRide);
 router.patch('/:id', (0, auth_1.default)('admin', 'driver', 'rider'), (0, validateRequest_1.default)(ride_validation_1.RideValidation.updateRideStatusValidationSchema), ride_controller_1.RideController.updateRide);
-router.patch('/:id/accept', (0, auth_1.default)('driver'), ride_controller_1.RideController.acceptRide);
+router.patch('/:rideId/accept', (0, auth_1.default)('driver'), ride_controller_1.RideController.acceptRideRequest);
+router.patch('/:rideId/start', (0, auth_1.default)('driver'), ride_controller_1.RideController.startRide);
+router.patch('/:rideId/complete', (0, auth_1.default)('driver'), ride_controller_1.RideController.completeRide);
+router.patch('/:rideId/cancel', (0, auth_1.default)('rider', 'driver', 'admin'), ride_controller_1.RideController.cancelRide);
+router.patch('/:rideId/rate', (0, auth_1.default)('rider', 'driver'), ride_controller_1.RideController.rateRide);
 exports.RideRoutes = router;
