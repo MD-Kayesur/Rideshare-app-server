@@ -9,7 +9,7 @@ let io: SocketServer;
 export const initializeSocket = (server: HttpServer) => {
   io = new SocketServer(server, {
     cors: { 
-      origin: '*', 'l'
+      origin: '*',
     },
   });
 

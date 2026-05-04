@@ -9,7 +9,7 @@ let io;
 const initializeSocket = (server) => {
     io = new socket_io_1.Server(server, {
         cors: {
-            origin: '*'
+            origin: '*',
         },
     });
     console.log('socket io connection successfully');

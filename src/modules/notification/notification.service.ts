@@ -17,7 +17,8 @@ const createNotification = async (payload: {
   recipient?: string; 
   title: string; 
   message: string; 
-  type: string 
+  type: string;
+  metadata?: Record<string, any>;
 }) => {
   const result = await Notification.create(payload);
   
