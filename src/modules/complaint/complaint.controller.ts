@@ -12,7 +12,7 @@ const createComplaint = catchAsync(async (req: Request, res: Response) => {
 
   // Emit real-time notification to admin
   const io = getIo();
-  io.emit('admin-notification', notification);
+  io.to('admin').emit('admin-notification', notification);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
