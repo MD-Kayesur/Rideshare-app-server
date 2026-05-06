@@ -30,7 +30,7 @@ const auth = (...requiredRoles: string[]) => {
       throw new AppError(404, `User not found for ID: ${userId}. Please login again.`);
     }
 
-    if (requiredRoles && !requiredRoles.includes(role)) {
+    if (requiredRoles && !requiredRoles.includes(user.role)) {
       throw new AppError(401, 'You are not authorized !');
     }
 
