@@ -8,6 +8,7 @@ import { PaymentRoutes } from '../modules/payment/payment.route';
 import { DriverRoutes } from '../modules/driver/driver.route';
 import { ComplaintRoutes } from '../modules/complaint/complaint.route';
 import { NotificationRoutes } from '../modules/notification/notification.route';
+import { VehicleRoutes } from '../modules/vehicle/vehicle.route';
 
 const router = Router();
 
@@ -47,6 +48,10 @@ const moduleRoutes = [
   {
     path: '/notifications',
     route: NotificationRoutes,
+  },
+  {
+    path: '/vehicles',
+    route: VehicleRoutes,
   },
 ];
 

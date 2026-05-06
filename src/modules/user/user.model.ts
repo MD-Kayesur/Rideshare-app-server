@@ -26,7 +26,7 @@ const userSchema = new Schema<TUser>(
       },
     ],
     currentLocation: {
-      type: { type: String, enum: ['Point'], default: 'Point' },
+      type: { type: String, enum: ['Point'] },
       coordinates: { type: [Number] },
     },
   },

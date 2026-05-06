@@ -19,7 +19,7 @@ const createDriver = catchAsync(async (req: Request, res: Response) => {
 
   // Emit real-time notification to admin
   const io = getIo();
-  io.emit('admin_notification', notification);
+  io.to('admin').emit('admin-notification', notification);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,

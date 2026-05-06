@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   console.log('Registering user with body:', req.body);
   const result = await AuthService.registerUser(req.body);
-
+console.log(result,'result')
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,

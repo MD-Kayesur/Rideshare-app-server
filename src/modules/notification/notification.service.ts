@@ -18,7 +18,7 @@ const createNotification = async (payload: {
   title: string; 
   message: string; 
   type: string;
-  metadata?: any;
+  metadata?: Record<string, any>;
 }) => {
   const result = await Notification.create(payload);
   
@@ -27,8 +27,8 @@ const createNotification = async (payload: {
     // Send to specific user room
     io.to(payload.recipient).emit('notification', result);
   } else {
-    // Send to admin room
-    io.emit('admin-notification', result);
+    // Send to admin room only
+    io.to('admin').emit('admin-notification', result);
   }
   
   return result;

@@ -57,26 +57,42 @@ const sendMessage = async (chatId, senderId, content, io) => {
         $inc: { messageCount: 1 }
     });
     const populatedMessage = await message_model_1.Message.findById(newMessage._id).populate('sender');
-    // Create notification if Admin sends a message to a non-admin
+    // Create notification based on sender role
     const sender = populatedMessage?.sender;
-    if (sender && sender.role === 'admin') {
+    if (sender) {
         const chat = await chat_model_1.Chat.findById(finalChatId);
         if (chat) {
-            // Find the other participant (the one who isn't the admin)
+            const { NotificationService } = require('../notification/notification.service');
             const recipientId = chat.participants.find(p => p.toString() !== sender._id.toString());
             if (recipientId) {
-                const { NotificationService } = require('../notification/notification.service');
-                await NotificationService.createNotification({
-                    recipient: recipientId.toString(),
-                    title: 'New Administrative Message',
-                    message: `Admin: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
-                    type: 'chat',
-                    metadata: {
-                        chatId: finalChatId,
-                        userId: sender._id.toString(),
-                        userName: sender.name
-                    }
-                });
+                if (sender.role === 'admin') {
+                    // Admin sending to user
+                    await NotificationService.createNotification({
+                        recipient: recipientId.toString(),
+                        title: 'New Administrative Message',
+                        message: `Admin: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+                        type: 'chat',
+                        metadata: {
+                            chatId: finalChatId,
+                            userId: sender._id.toString(),
+                            userName: sender.name
+                        }
+                    });
+                }
+                else {
+                    // User sending to admin (or other user)
+                    await NotificationService.createNotification({
+                        recipient: recipientId.toString(),
+                        title: 'New Message',
+                        message: `${sender.name}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+                        type: 'chat',
+                        metadata: {
+                            chatId: finalChatId,
+                            userId: sender._id.toString(),
+                            userName: sender.name
+                        }
+                    });
+                }
             }
         }
     }

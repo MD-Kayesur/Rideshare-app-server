@@ -1,6 +1,7 @@
 import { TDriver } from './driver.interface';
 import { Driver } from './driver.model';
 import { User } from '../user/user.model';
+import { Vehicle } from '../vehicle/vehicle.model';
 
 const createDriver = async (userId: string, payload: Partial<TDriver>) => {
   // Ensure user exists and has driver role
@@ -45,7 +46,7 @@ const getAllDrivers = async () => {
 };
 
 const getNearbyDrivers = async (lat: number, lng: number, vehicleType?: string) => {
-  // 1. Find users with role 'driver' within radius (e.g., 5km)
+  // 1. Find users with role 'driver' within radius (e.g., 5km) who are ONLINE
   const nearbyUsers = await User.find({
     role: 'driver',
     isOnline: true,
@@ -55,28 +56,45 @@ const getNearbyDrivers = async (lat: number, lng: number, vehicleType?: string) 
           type: 'Point',
           coordinates: [lng, lat],
         },
-        $maxDistance: 5000, // 5 kilometers
+        $maxDistance: 500000, // 500 kilometers for testing
       },
     },
   });
 
   if (!nearbyUsers.length) return [];
 
-  // 2. Find their corresponding driver profiles
   const userIds = nearbyUsers.map(user => user._id);
-  const query: any = { user: { $in: userIds }, isVerified: true }; // Only verified drivers
+
+  // 2. Find driver profiles for these active users
+  const activeDrivers = await Driver.find({ 
+    user: { $in: userIds }
+  });
+  
+  const activeDriverUserIds = activeDrivers.map(d => d.user.toString());
+
+  // 3. Find ALL vehicles belonging to these active, online drivers
+  const vehicleQuery: any = { 
+    driver: { $in: activeDriverUserIds } 
+  };
+  
   if (vehicleType) {
-    query.vehicleType = vehicleType;
+    vehicleQuery.vehicleType = vehicleType;
   }
 
-  const drivers = await Driver.find(query).populate('user');
+  // Show all vehicles for now (ignoring verification for testing)
+  const vehicles = await Vehicle.find(vehicleQuery).populate('driver');
   
-  // Combine user location with driver profile
-  return drivers.map(driver => {
-    const user = nearbyUsers.find(u => u._id.toString() === (driver.user as any)._id.toString());
+  return vehicles.map(vehicle => {
+    const user = nearbyUsers.find(u => u._id.toString() === (vehicle.driver as any)._id.toString());
     return {
-      ...driver.toObject(),
-      distance: user ? 'Nearby' : 'Unknown', // In a real app, calculate actual distance
+      _id: vehicle._id,
+      vehicleModel: vehicle.vehicleModel,
+      vehicleType: vehicle.vehicleType,
+      vehicleImage: vehicle.vehicleImage,
+      vehicleNumber: vehicle.vehicleNumber,
+      details: vehicle.details,
+      user: vehicle.driver, // Match front-end expectation
+      distance: 'Nearby', 
     };
   });
 };

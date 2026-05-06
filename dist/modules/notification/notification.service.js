@@ -20,8 +20,8 @@ const createNotification = async (payload) => {
         io.to(payload.recipient).emit('notification', result);
     }
     else {
-        // Send to admin room
-        io.emit('admin-notification', result);
+        // Send to admin room only
+        io.to('admin').emit('admin-notification', result);
     }
     return result;
 };

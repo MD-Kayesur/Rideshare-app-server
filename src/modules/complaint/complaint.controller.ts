@@ -8,18 +8,11 @@ import { NotificationService } from '../notification/notification.service';
 
 const createComplaint = catchAsync(async (req: Request, res: Response) => {
   const userId = (req as any).user.userId;
-  const result = await ComplaintService.createComplaint(userId, req.body);
-
-  // Create persistent notification
-  const notification = await NotificationService.createNotification({
-    title: 'New Complaint',
-    message: `A new complaint has been submitted: ${req.body.subject}`,
-    type: 'complaint'
-  });
+  const { result, notification } = await ComplaintService.createComplaint(userId, req.body);
 
   // Emit real-time notification to admin
   const io = getIo();
-  io.emit('admin_notification', notification);
+  io.to('admin').emit('admin-notification', notification);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
