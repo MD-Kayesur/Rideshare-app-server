@@ -10,7 +10,7 @@ const vehicleSchema = new Schema<TVehicle>(
     vehicleImage: { type: String, required: true },
     licenseNumber: { type: String },
     details: { type: Schema.Types.Mixed, default: {} },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
   },
   { timestamps: true },
 );
