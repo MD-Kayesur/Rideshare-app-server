@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = __importDefault(require("../config"));
 const globalErrorHandler = (err, req, res, next) => {
-    let statusCode = 500;
+    let statusCode = err?.statusCode || 500;
     let message = err?.message || 'Something went wrong!';
     // Handle Mongoose Duplicate Key Error
     if (err?.code === 11000) {
