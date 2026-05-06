@@ -45,7 +45,20 @@ const validatePayment = async (transactionId: string) => {
   return null;
 };
 
+const getMyPayments = async (userId: string) => {
+  const result = await Payment.find()
+    .populate({
+      path: 'ride',
+      match: { $or: [{ rider: userId }, { driver: userId }] },
+    })
+    .sort('-createdAt');
+
+  // Filter out payments where the ride didn't match the user (because .populate returns null for non-matching docs)
+  return result.filter(payment => payment.ride !== null);
+};
+
 export const PaymentService = {
   createPaymentIntent,
   validatePayment,
+  getMyPayments,
 };

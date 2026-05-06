@@ -28,7 +28,20 @@ const verifyPayment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyPayments = catchAsync(async (req: Request, res: Response) => {
+  const userId = (req as any).user._id;
+  const result = await PaymentService.getMyPayments(userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Payment history fetched successfully',
+    data: result,
+  });
+});
+
 export const PaymentController = {
   createPaymentIntent,
   verifyPayment,
+  getMyPayments,
 };
