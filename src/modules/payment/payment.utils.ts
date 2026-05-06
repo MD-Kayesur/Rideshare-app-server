@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2025-01-27' as any,
+  apiVersion: '2024-12-18.acacia' as any,
 });
 
 export const initiatePayment = async (paymentData: { amount: number; rideId: string; gateway: string }) => {
