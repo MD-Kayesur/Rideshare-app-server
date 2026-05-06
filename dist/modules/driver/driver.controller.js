@@ -21,7 +21,7 @@ const createDriver = (0, catchAsync_1.default)(async (req, res) => {
     });
     // Emit real-time notification to admin
     const io = (0, socket_io_1.getIo)();
-    io.emit('admin_notification', notification);
+    io.to('admin').emit('admin-notification', notification);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,

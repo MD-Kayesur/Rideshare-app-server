@@ -63,10 +63,10 @@ const sendMessage = async (chatId, senderId, content, io) => {
         const chat = await chat_model_1.Chat.findById(finalChatId);
         if (chat) {
             const { NotificationService } = require('../notification/notification.service');
-            if (sender.role === 'admin') {
-                // Admin sending to user
-                const recipientId = chat.participants.find(p => p.toString() !== sender._id.toString());
-                if (recipientId) {
+            const recipientId = chat.participants.find(p => p.toString() !== sender._id.toString());
+            if (recipientId) {
+                if (sender.role === 'admin') {
+                    // Admin sending to user
                     await NotificationService.createNotification({
                         recipient: recipientId.toString(),
                         title: 'New Administrative Message',
@@ -79,21 +79,19 @@ const sendMessage = async (chatId, senderId, content, io) => {
                         }
                     });
                 }
-            }
-            else {
-                // User sending to admin (or general reply)
-                const adminNotification = await NotificationService.createNotification({
-                    title: 'New User Reply',
-                    message: `${sender.name}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
-                    type: 'chat',
-                    metadata: {
-                        chatId: finalChatId,
-                        userId: sender._id.toString(),
-                        userName: sender.name
-                    }
-                });
-                if (io) {
-                    io.emit('admin-notification', adminNotification);
+                else {
+                    // User sending to admin (or other user)
+                    await NotificationService.createNotification({
+                        recipient: recipientId.toString(),
+                        title: 'New Message',
+                        message: `${sender.name}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+                        type: 'chat',
+                        metadata: {
+                            chatId: finalChatId,
+                            userId: sender._id.toString(),
+                            userName: sender.name
+                        }
+                    });
                 }
             }
         }
