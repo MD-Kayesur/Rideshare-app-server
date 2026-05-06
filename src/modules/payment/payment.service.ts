@@ -22,7 +22,11 @@ const createPaymentIntent = async (rideId: string, gateway: 'stripe' | 'sslcomme
     status: 'pending',
   });
 
-  return { paymentUrl: paymentResponse.paymentUrl, transactionId: result.transactionId };
+  return { 
+    paymentUrl: paymentResponse.paymentUrl, 
+    transactionId: result.transactionId,
+    clientSecret: paymentResponse.clientSecret // Added for Stripe
+  };
 };
 
 const validatePayment = async (transactionId: string) => {

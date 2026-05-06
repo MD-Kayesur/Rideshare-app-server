@@ -1,9 +1,30 @@
-import config from '../../config';
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
 
-// Mock utility for payment gateway interaction
-export const initiatePayment = async (paymentData: any) => {
-  // Integration with Stripe or SSLCommerz would go here
-  console.log('Initiating payment with data:', paymentData);
+dotenv.config();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: '2025-01-27' as any,
+});
+
+export const initiatePayment = async (paymentData: { amount: number; rideId: string; gateway: string }) => {
+  if (paymentData.gateway === 'stripe') {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(paymentData.amount * 100), // Stripe uses cents
+      currency: process.env.STRIPE_CURRENCY || 'usd',
+      metadata: {
+        rideId: paymentData.rideId,
+      },
+    });
+
+    return {
+      status: 'success',
+      transactionId: paymentIntent.id,
+      clientSecret: paymentIntent.client_secret,
+    };
+  }
+
+  // Fallback for other gateways (e.g. SSLCommerz mock)
   return {
     status: 'success',
     transactionId: `TXN-${Date.now()}`,
@@ -12,9 +33,10 @@ export const initiatePayment = async (paymentData: any) => {
 };
 
 export const verifyPayment = async (transactionId: string) => {
-  // Verification logic
+  const paymentIntent = await stripe.paymentIntents.retrieve(transactionId);
+  
   return {
-    status: 'paid',
+    status: paymentIntent.status === 'succeeded' ? 'paid' : 'pending',
     transactionId,
   };
 };
