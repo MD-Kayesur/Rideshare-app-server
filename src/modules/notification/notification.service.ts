@@ -34,9 +34,19 @@ const createNotification = async (payload: {
   return result;
 };
 
+const deleteNotification = async (id: string) => {
+  return await Notification.findByIdAndDelete(id);
+};
+
+const deleteAllNotifications = async () => {
+  return await Notification.deleteMany({});
+};
+
 export const NotificationService = {
   getAllNotifications,
   getNotificationsForUser,
   markAsRead,
   createNotification,
+  deleteNotification,
+  deleteAllNotifications,
 };
