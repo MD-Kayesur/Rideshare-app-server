@@ -18,12 +18,29 @@ const getAllRidesFromDB = async (query: Record<string, unknown>) => {
     .paginate()
     .fields();
 
-  const result = await rideQuery.modelQuery;
+  const rides = await rideQuery.modelQuery;
   const meta = await rideQuery.countTotal();
+
+  // Attach payment info to each ride
+  const { Payment } = await import('../payment/payment.model');
+  const ridesWithPayment = await Promise.all(
+    rides.map(async (ride) => {
+      const payment = await Payment.findOne({ ride: ride._id, status: 'paid' });
+      const rideObj = ride.toObject();
+      return {
+        ...rideObj,
+        paymentDetails: payment ? {
+          method: payment.paymentGateway,
+          cardBrand: payment.paymentData?.brand || payment.paymentData?.card_type,
+          last4: payment.paymentData?.last4 || payment.paymentData?.card_number?.slice(-4)
+        } : null
+      };
+    })
+  );
 
   return {
     meta,
-    result,
+    result: ridesWithPayment,
   };
 };
 

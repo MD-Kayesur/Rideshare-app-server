@@ -1,6 +1,7 @@
 import { Payment } from './payment.model';
 import { initiatePayment, verifyPayment } from './payment.utils';
 import { Ride } from '../ride/ride.model';
+import { NotificationService } from '../notification/notification.service';
 
 const createPaymentIntent = async (rideId: string, gateway: 'stripe' | 'sslcommerz') => {
   const ride = await Ride.findById(rideId);
@@ -40,7 +41,28 @@ const validatePayment = async (transactionId: string) => {
     );
 
     if (result) {
-      await Ride.findByIdAndUpdate(result.ride, { paymentStatus: 'paid' });
+      const updatedRide = await Ride.findByIdAndUpdate(
+        result.ride, 
+        { paymentStatus: 'paid' },
+        { new: true }
+      ).populate('rider');
+
+      if (updatedRide && updatedRide.driver) {
+        const driverId = updatedRide.driver.toString();
+        const riderName = (updatedRide.rider as any)?.name || 'A rider';
+
+        await NotificationService.createNotification({
+          recipient: driverId,
+          title: 'Payment Received',
+          message: `${riderName} has successfully paid for the ride.`,
+          type: 'payment',
+          metadata: {
+            rideId: updatedRide._id,
+            amount: result.amount,
+            transactionId: result.transactionId
+          }
+        });
+      }
     }
     
     return result;
