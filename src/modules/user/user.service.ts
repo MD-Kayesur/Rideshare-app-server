@@ -1,6 +1,8 @@
 import QueryBuilder from '../../builder/QueryBuilder';
 import { TUser } from './user.interface';
 import { User } from './user.model';
+import { Vehicle } from '../vehicle/vehicle.model';
+import { getIo } from '../../socket/socket.io';
 
 const getAllUsersFromDB = async (query: Record<string, unknown>) => {
   const userQuery = new QueryBuilder(User.find(), query)
@@ -48,6 +50,19 @@ const toggleOnlineStatus = async (userId: string, isOnline: boolean) => {
     { isOnline },
     { new: true }
   );
+
+  if (result) {
+    // Synchronize vehicle AC status with online status for testing/convenience
+    await Vehicle.updateMany(
+      { driver: userId },
+      { $set: { 'details.isAC': isOnline } }
+    );
+
+    // Notify all riders that a driver status has changed
+    const io = getIo();
+    io.emit('driver_status_changed', { driverId: userId, isOnline });
+  }
+
   return result;
 };
 
