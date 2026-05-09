@@ -50,15 +50,17 @@ const getNearbyDrivers = async (lat: number, lng: number, vehicleType?: string) 
   const nearbyUsers = await User.find({
     role: 'driver',
     isOnline: true,
+    /* 
     currentLocation: {
       $near: {
         $geometry: {
           type: 'Point',
           coordinates: [lng, lat],
         },
-        $maxDistance: 500000, // 500 kilometers for testing
+        $maxDistance: 500000, 
       },
     },
+    */
   });
 
   if (!nearbyUsers.length) return [];
@@ -83,6 +85,7 @@ const getNearbyDrivers = async (lat: number, lng: number, vehicleType?: string) 
 
   // Show all vehicles for now (ignoring verification for testing)
   const vehicles = await Vehicle.find(vehicleQuery).populate('driver');
+  console.log(`Found ${vehicles.length} vehicles for type: ${vehicleType}`);
   
   return vehicles.map(vehicle => {
     const user = nearbyUsers.find(u => u._id.toString() === (vehicle.driver as any)._id.toString());
