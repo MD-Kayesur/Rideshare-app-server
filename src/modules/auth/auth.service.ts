@@ -15,6 +15,10 @@ const registerUser = async (payload: TUser) => {
     ...payload,
     verificationCode,
     verificationCodeExpires,
+    currentLocation: {
+      type: 'Point',
+      coordinates: [90.4125, 23.8103], // Default to Dhaka for testing
+    }
   });
 
   console.log({ ...result.toObject(), verificationCode }, 'result service');
