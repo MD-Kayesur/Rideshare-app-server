@@ -29,7 +29,7 @@ const userSchema = new mongoose_1.Schema({
         },
     ],
     currentLocation: {
-        type: { type: String, enum: ['Point'], default: 'Point' },
+        type: { type: String, enum: ['Point'] },
         coordinates: { type: [Number] },
     },
 }, { timestamps: true, collection: 'auth' });

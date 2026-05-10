@@ -18,6 +18,10 @@ const registerUser = async (payload) => {
         ...payload,
         verificationCode,
         verificationCodeExpires,
+        currentLocation: {
+            type: 'Point',
+            coordinates: [90.4125, 23.8103], // Default to Dhaka for testing
+        }
     });
     console.log({ ...result.toObject(), verificationCode }, 'result service');
     // Send the code via Email (wrapped in try-catch to avoid failing registration if email service is not configured)
