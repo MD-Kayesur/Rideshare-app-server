@@ -11,4 +11,6 @@ const router = (0, express_1.Router)();
 router.get('/', (0, auth_1.default)('admin'), notification_controller_1.NotificationController.getAllNotifications);
 router.get('/me', (0, auth_1.default)('rider', 'driver', 'admin'), notification_controller_1.NotificationController.getMyNotifications);
 router.patch('/:id/read', (0, auth_1.default)('rider', 'driver', 'admin'), notification_controller_1.NotificationController.markAsRead);
+router.delete('/:id', (0, auth_1.default)('admin'), notification_controller_1.NotificationController.deleteNotification);
+router.delete('/', (0, auth_1.default)('admin'), notification_controller_1.NotificationController.deleteAllNotifications);
 exports.NotificationRoutes = router;

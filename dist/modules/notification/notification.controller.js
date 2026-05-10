@@ -37,8 +37,29 @@ const getMyNotifications = (0, catchAsync_1.default)(async (req, res) => {
         data: result,
     });
 });
+const deleteNotification = (0, catchAsync_1.default)(async (req, res) => {
+    const { id } = req.params;
+    const result = await notification_service_1.NotificationService.deleteNotification(id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Notification deleted successfully',
+        data: result,
+    });
+});
+const deleteAllNotifications = (0, catchAsync_1.default)(async (req, res) => {
+    const result = await notification_service_1.NotificationService.deleteAllNotifications();
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'All notifications deleted successfully',
+        data: result,
+    });
+});
 exports.NotificationController = {
     getAllNotifications,
     markAsRead,
     getMyNotifications,
+    deleteNotification,
+    deleteAllNotifications,
 };

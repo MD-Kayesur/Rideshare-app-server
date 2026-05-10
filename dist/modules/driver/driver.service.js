@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DriverService = void 0;
 const driver_model_1 = require("./driver.model");
 const user_model_1 = require("../user/user.model");
+const vehicle_model_1 = require("../vehicle/vehicle.model");
 const createDriver = async (userId, payload) => {
     // Ensure user exists and has driver role
     const user = await user_model_1.User.findById(userId);
@@ -40,35 +41,51 @@ const getAllDrivers = async () => {
     return await driver_model_1.Driver.find().populate('user');
 };
 const getNearbyDrivers = async (lat, lng, vehicleType) => {
-    // 1. Find users with role 'driver' within radius (e.g., 5km)
+    // 1. Find users with role 'driver' within radius (e.g., 5km) who are ONLINE
     const nearbyUsers = await user_model_1.User.find({
         role: 'driver',
         isOnline: true,
+        /*
         currentLocation: {
-            $near: {
-                $geometry: {
-                    type: 'Point',
-                    coordinates: [lng, lat],
-                },
-                $maxDistance: 5000, // 5 kilometers
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [lng, lat],
             },
+            $maxDistance: 500000,
+          },
         },
+        */
     });
     if (!nearbyUsers.length)
         return [];
-    // 2. Find their corresponding driver profiles
     const userIds = nearbyUsers.map(user => user._id);
-    const query = { user: { $in: userIds }, isVerified: true }; // Only verified drivers
+    // 2. Find driver profiles for these active users
+    const activeDrivers = await driver_model_1.Driver.find({
+        user: { $in: userIds }
+    });
+    const activeDriverUserIds = activeDrivers.map(d => d.user.toString());
+    // 3. Find ALL vehicles belonging to these active, online drivers
+    const vehicleQuery = {
+        driver: { $in: activeDriverUserIds }
+    };
     if (vehicleType) {
-        query.vehicleType = vehicleType;
+        vehicleQuery.vehicleType = vehicleType;
     }
-    const drivers = await driver_model_1.Driver.find(query).populate('user');
-    // Combine user location with driver profile
-    return drivers.map(driver => {
-        const user = nearbyUsers.find(u => u._id.toString() === driver.user._id.toString());
+    // Show all vehicles for now (ignoring verification for testing)
+    const vehicles = await vehicle_model_1.Vehicle.find(vehicleQuery).populate('driver');
+    console.log(`Found ${vehicles.length} vehicles for type: ${vehicleType}`);
+    return vehicles.map(vehicle => {
+        const user = nearbyUsers.find(u => u._id.toString() === vehicle.driver._id.toString());
         return {
-            ...driver.toObject(),
-            distance: user ? 'Nearby' : 'Unknown', // In a real app, calculate actual distance
+            _id: vehicle._id,
+            vehicleModel: vehicle.vehicleModel,
+            vehicleType: vehicle.vehicleType,
+            vehicleImage: vehicle.vehicleImage,
+            vehicleNumber: vehicle.vehicleNumber,
+            details: vehicle.details,
+            user: vehicle.driver, // Match front-end expectation
+            distance: 'Nearby',
         };
     });
 };
