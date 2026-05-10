@@ -1,45 +1,31 @@
-import { Server } from 'http';
-import mongoose from 'mongoose';
-import app from './app';
-import config from './config';
-import { initializeSocket } from './socket/socket.io';
+// PROXY SCRIPT TO BYPASS RENDER'S HARDCODED "node src/server.ts" START COMMAND
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-let server: Server;
+console.log("=========================================");
+console.log("Starting proxy server.ts execution...");
+console.log("=========================================");
 
-async function main() {
-  try {
-    await mongoose.connect(config.database_url as string);
-    console.log('Successfully connected to MongoDB');
+const distMainPath = path.join(__dirname, '../dist/main.js');
 
-    server = require('http').createServer(app);
-    server.listen(config.port, () => {
-      console.log(`Application is running on port ${config.port}`);
-    });
-
-    // Initialize Socket.io
-    initializeSocket(server);
-
-  } catch (err) {
-    console.log(err);
+try {
+  if (!fs.existsSync(distMainPath)) {
+    console.log("Compiling TypeScript to JavaScript because dist/main.js was not found...");
+    // Install typescript explicitly just in case it wasn't installed
+    execSync('npm install typescript --no-save', { stdio: 'inherit' });
+    // Run the compiler
+    execSync('npm run build', { stdio: 'inherit' });
+    console.log("Compilation successful!");
+  } else {
+    console.log("Compiled JavaScript found. Skipping build.");
   }
+} catch (error) {
+  console.error("Failed to build the project during proxy execution:");
+  console.error(error);
+  process.exit(1);
 }
 
-main();
-
-process.on('unhandledRejection', (error) => {
-  console.log('Unhandled Rejection detected, shutting down server...');
-  console.error(error); // Added error logging
-  if (server) {
-    server.close(() => {
-      process.exit(1);
-    });
-  } else {
-    process.exit(1);
-  }
-});
-
-process.on('uncaughtException', (error) => {
-  console.log('Uncaught Exception detected, shutting down...');
-  console.error(error); // Added error logging
-  process.exit(1);
-});
+console.log("Starting the real compiled server...");
+// Require the compiled main.js
+require('../dist/main.js');

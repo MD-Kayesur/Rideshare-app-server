@@ -1,43 +1,30 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const app_1 = __importDefault(require("./app"));
-const config_1 = __importDefault(require("./config"));
-const socket_io_1 = require("./socket/socket.io");
-let server;
-async function main() {
-    try {
-        await mongoose_1.default.connect(config_1.default.database_url);
-        console.log('Successfully connected to MongoDB');
-        server = require('http').createServer(app_1.default);
-        server.listen(config_1.default.port, () => {
-            console.log(`Application is running on port ${config_1.default.port}`);
-        });
-        // Initialize Socket.io
-        (0, socket_io_1.initializeSocket)(server);
-    }
-    catch (err) {
-        console.log(err);
-    }
-}
-main();
-process.on('unhandledRejection', (error) => {
-    console.log('Unhandled Rejection detected, shutting down server...');
-    console.error(error); // Added error logging
-    if (server) {
-        server.close(() => {
-            process.exit(1);
-        });
+// PROXY SCRIPT TO BYPASS RENDER'S HARDCODED "node src/server.ts" START COMMAND
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+console.log("=========================================");
+console.log("Starting proxy server.ts execution...");
+console.log("=========================================");
+const distMainPath = path.join(__dirname, '../dist/main.js');
+try {
+    if (!fs.existsSync(distMainPath)) {
+        console.log("Compiling TypeScript to JavaScript because dist/main.js was not found...");
+        // Install typescript explicitly just in case it wasn't installed
+        execSync('npm install typescript --no-save', { stdio: 'inherit' });
+        // Run the compiler
+        execSync('npm run build', { stdio: 'inherit' });
+        console.log("Compilation successful!");
     }
     else {
-        process.exit(1);
+        console.log("Compiled JavaScript found. Skipping build.");
     }
-});
-process.on('uncaughtException', (error) => {
-    console.log('Uncaught Exception detected, shutting down...');
-    console.error(error); // Added error logging
+}
+catch (error) {
+    console.error("Failed to build the project during proxy execution:");
+    console.error(error);
     process.exit(1);
-});
+}
+console.log("Starting the real compiled server...");
+// Require the compiled main.js
+require('../dist/main.js');
