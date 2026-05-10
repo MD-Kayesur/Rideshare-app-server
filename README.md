@@ -26,13 +26,15 @@ Rideshare Pro Backend is a high-performance, modularized server-side solution bu
 
 ---
 
-This is the complete, production-ready file structure for your Rideshare Backend. It follows the Modular Pattern where every feature (Auth, User, Ride, Chat, etc.) is self-contained with its own Controllers, Routes, Services, and Models.
+## 📁 Project Structure
 
-text
+This project follows the **Modular Pattern** where every feature (Auth, User, Ride, Chat, etc.) is self-contained with its own Controllers, Routes, Services, and Models.
+
+```text
 rideshare-backend/
 ├── src/
 │   ├── app.ts                 # Express application instance & middleware setup
-│   ├── server.ts              # Entry point: Server & Socket.io initialization
+│   ├── main.ts                # Entry point: Server & Socket.io initialization
 │   │
 │   ├── modules/               # Feature-based Modules (Business Logic)
 │   │   ├── auth/              # Authentication & Authorization
@@ -43,15 +45,15 @@ rideshare-backend/
 │   │   │   ├── auth.validation.ts
 │   │   │   └── auth.utils.ts
 │   │   │
-│   │   ├── user/              # [UPDATED] User Profile & Real-time Status
+│   │   ├── user/              # User Profile & Real-time Status
 │   │   │   ├── user.model.ts
 │   │   │   ├── user.controller.ts
-│   │   │   ├── user.service.ts    # [UPDATED] Live Online/Offline Toggle logic
+│   │   │   ├── user.service.ts
 │   │   │   ├── user.route.ts
 │   │   │   ├── user.interface.ts
 │   │   │   └── user.validation.ts
 │   │   │
-│   │   ├── driver/            # [NEW] Driver Profiles & Licenses
+│   │   ├── driver/            # Driver Profiles & Licenses
 │   │   │   ├── driver.model.ts
 │   │   │   ├── driver.controller.ts
 │   │   │   ├── driver.service.ts
@@ -59,7 +61,7 @@ rideshare-backend/
 │   │   │   ├── driver.interface.ts
 │   │   │   └── driver.validation.ts
 │   │   │
-│   │   ├── vehicle/           # [NEW] Vehicle Management & AC Status
+│   │   ├── vehicle/           # Vehicle Management & AC Status
 │   │   │   ├── vehicle.model.ts
 │   │   │   ├── vehicle.controller.ts
 │   │   │   ├── vehicle.service.ts
@@ -67,54 +69,54 @@ rideshare-backend/
 │   │   │   ├── vehicle.interface.ts
 │   │   │   └── vehicle.validation.ts
 │   │   │
-│   │   ├── ride/              # [UPDATED] Ride Request & Matching
+│   │   ├── ride/              # Ride Request & Matching
 │   │   │   ├── ride.model.ts
 │   │   │   ├── ride.controller.ts
-│   │   │   ├── ride.service.ts    # [UPDATED] Real-time Driver Matching
+│   │   │   ├── ride.service.ts
 │   │   │   ├── ride.route.ts
 │   │   │   ├── ride.interface.ts
 │   │   │   ├── ride.validation.ts
 │   │   │   └── ride.constant.ts
 │   │   │
-│   │   ├── chat/              # [UPDATED] Real-time Chat & History
-│   │   │   ├── chat.model.ts       # Conversation Schema
-│   │   │   ├── message.model.ts    # Message Schema
+│   │   ├── chat/              # Real-time Chat & History
+│   │   │   ├── chat.model.ts
+│   │   │   ├── message.model.ts
 │   │   │   ├── chat.controller.ts
 │   │   │   ├── chat.service.ts
 │   │   │   ├── chat.route.ts
 │   │   │   ├── chat.interface.ts
-│   │   │   └── chat.socket.ts      # [UPDATED] Real-time signaling
+│   │   │   └── chat.socket.ts
 │   │   │
-│   │   ├── call/              # [NEW] VoIP & Call Signaling
-│   │   │   ├── call.model.ts       # Call Log Schema
+│   │   ├── call/              # VoIP & Call Signaling
+│   │   │   ├── call.model.ts
 │   │   │   ├── call.controller.ts
 │   │   │   ├── call.service.ts
 │   │   │   ├── call.route.ts
-│   │   │   └── call.socket.ts      # [NEW] WebRTC Signaling handlers
+│   │   │   └── call.socket.ts
 │   │   │
-│   │   ├── complaint/         # [NEW] User Feedback & Complaints
+│   │   ├── complaint/         # User Feedback & Complaints
 │   │   │   ├── complaint.model.ts
 │   │   │   ├── complaint.controller.ts
 │   │   │   ├── complaint.service.ts
 │   │   │   ├── complaint.route.ts
 │   │   │   └── complaint.interface.ts
 │   │   │
-│   │   ├── notification/      # [NEW] Push & Socket Notifications
+│   │   ├── notification/      # Push & Socket Notifications
 │   │   │   ├── notification.model.ts
 │   │   │   ├── notification.controller.ts
 │   │   │   ├── notification.service.ts
 │   │   │   ├── notification.route.ts
 │   │   │   └── notification.interface.ts
 │   │   │
-│   │   └── payment/           # [UPDATED] Stripe/SSLCommerz Integration
+│   │   └── payment/           # Stripe/SSLCommerz Integration
 │   │       ├── payment.model.ts
 │   │       ├── payment.controller.ts
 │   │       ├── payment.service.ts
 │   │       ├── payment.route.ts
 │   │       └── payment.utils.ts
 │   │
-│   ├── socket/                # [UPDATED] Global Socket.io Configuration
-│   │   └── socket.io.ts       # [UPDATED] Real-time user-mapping logic
+│   ├── socket/                # Global Socket.io Configuration
+│   │   └── socket.io.ts       
 │   │
 │   ├── middlewares/           # Custom Express Middlewares
 │   │   ├── auth.ts            # JWT verification & role checking
@@ -149,10 +151,12 @@ rideshare-backend/
 ├── .eslintrc.json
 ├── tsconfig.json              # TypeScript configuration
 ├── package.json
+├── render.yaml                # Infrastructure as Code for deployment
 └── README.md
-Key Highlights of this Structure:
-Strict Modularization: Each folder under modules/ is independent. If you want to delete the "Chat" feature, you only need to delete the chat/ folder and its route from app.ts.
-Scalability: The QueryBuilder.ts and catchAsync.ts utilities ensure that your code remains DRY (Don't Repeat Yourself) as you add more features.
-Real-time Ready: The separation of chat.socket.ts and call.socket.ts keeps your server.ts clean, allowing for complex signaling and messaging logic.
-Security: The middlewares/auth.ts will handle all authentication, and validation.ts files in each module will ensure only clean data reaches your database.
-Does this structure meet your requirements, or would you like to dive into the code for a specific file?
+```
+
+### ✨ Key Highlights of this Structure:
+*   **Strict Modularization:** Each folder under `modules/` is independent. If you want to delete the "Chat" feature, you only need to delete the `chat/` folder and its route from `app.ts`.
+*   **Scalability:** The `QueryBuilder.ts` and `catchAsync.ts` utilities ensure that your code remains DRY (Don't Repeat Yourself) as you add more features.
+*   **Real-time Ready:** The separation of `chat.socket.ts` and `call.socket.ts` keeps your server clean, allowing for complex signaling and messaging logic.
+*   **Security:** The `middlewares/auth.ts` handles all authentication, and `validation.ts` files in each module ensure only clean data reaches your database.
