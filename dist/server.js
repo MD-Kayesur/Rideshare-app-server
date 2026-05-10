@@ -12,7 +12,8 @@ async function main() {
     try {
         await mongoose_1.default.connect(config_1.default.database_url);
         console.log('Successfully connected to MongoDB');
-        server = app_1.default.listen(config_1.default.port, () => {
+        server = require('http').createServer(app_1.default);
+        server.listen(config_1.default.port, () => {
             console.log(`Application is running on port ${config_1.default.port}`);
         });
         // Initialize Socket.io

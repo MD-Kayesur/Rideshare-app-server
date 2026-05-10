@@ -10,6 +10,7 @@ const payment_route_1 = require("../modules/payment/payment.route");
 const driver_route_1 = require("../modules/driver/driver.route");
 const complaint_route_1 = require("../modules/complaint/complaint.route");
 const notification_route_1 = require("../modules/notification/notification.route");
+const vehicle_route_1 = require("../modules/vehicle/vehicle.route");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -47,6 +48,10 @@ const moduleRoutes = [
     {
         path: '/notifications',
         route: notification_route_1.NotificationRoutes,
+    },
+    {
+        path: '/vehicles',
+        route: vehicle_route_1.VehicleRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

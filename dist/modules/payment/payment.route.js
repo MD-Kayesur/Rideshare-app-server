@@ -10,4 +10,5 @@ const auth_1 = __importDefault(require("../../middlewares/auth"));
 const router = express_1.default.Router();
 router.post('/create-intent', (0, auth_1.default)('rider'), payment_controller_1.PaymentController.createPaymentIntent);
 router.get('/verify', (0, auth_1.default)('rider', 'admin'), payment_controller_1.PaymentController.verifyPayment);
+router.get('/my-payments', (0, auth_1.default)('rider', 'driver', 'admin'), payment_controller_1.PaymentController.getMyPayments);
 exports.PaymentRoutes = router;

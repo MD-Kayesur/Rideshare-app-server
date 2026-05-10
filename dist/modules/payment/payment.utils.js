@@ -1,10 +1,31 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyPayment = exports.initiatePayment = void 0;
-// Mock utility for payment gateway interaction
+const stripe_1 = __importDefault(require("stripe"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2024-12-18.acacia',
+});
 const initiatePayment = async (paymentData) => {
-    // Integration with Stripe or SSLCommerz would go here
-    console.log('Initiating payment with data:', paymentData);
+    if (paymentData.gateway === 'stripe') {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: Math.round(paymentData.amount * 100), // Stripe uses cents
+            currency: process.env.STRIPE_CURRENCY || 'usd',
+            metadata: {
+                rideId: paymentData.rideId,
+            },
+        });
+        return {
+            status: 'success',
+            transactionId: paymentIntent.id,
+            clientSecret: paymentIntent.client_secret,
+        };
+    }
+    // Fallback for other gateways (e.g. SSLCommerz mock)
     return {
         status: 'success',
         transactionId: `TXN-${Date.now()}`,
@@ -13,9 +34,9 @@ const initiatePayment = async (paymentData) => {
 };
 exports.initiatePayment = initiatePayment;
 const verifyPayment = async (transactionId) => {
-    // Verification logic
+    const paymentIntent = await stripe.paymentIntents.retrieve(transactionId);
     return {
-        status: 'paid',
+        status: paymentIntent.status === 'succeeded' ? 'paid' : 'pending',
         transactionId,
     };
 };

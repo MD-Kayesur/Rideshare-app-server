@@ -10,6 +10,7 @@ const initializeSocket = (server) => {
     io = new socket_io_1.Server(server, {
         cors: {
             origin: '*',
+            methods: ['GET', 'POST'],
         },
     });
     console.log('socket io connection successfully');

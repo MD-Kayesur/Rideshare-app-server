@@ -11,7 +11,8 @@ async function main() {
     await mongoose.connect(config.database_url as string);
     console.log('Successfully connected to MongoDB');
 
-    server = app.listen(config.port, () => {
+    server = require('http').createServer(app);
+    server.listen(config.port, () => {
       console.log(`Application is running on port ${config.port}`);
     });
 
