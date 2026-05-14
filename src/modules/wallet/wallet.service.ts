@@ -36,7 +36,7 @@ const addMoneyToWallet = async (userId: string, payload: Partial<TTransaction>) 
 const getMyWallet = async (userId: string) => {
   let wallet = await Wallet.findOne({ user: userId });
   if (!wallet) {
-    wallet = await Wallet.create({ user: userId, balance: 0 });
+    wallet = await Wallet.create({ user: userId, balance: 0, totalExpend: 0 });
   }
   
   const transactions = await Transaction.find({ user: userId }).sort({ createdAt: -1 });
@@ -57,6 +57,7 @@ export const WalletService = {
     }
 
     wallet.balance -= amount;
+    wallet.totalExpend += amount;
     await wallet.save();
 
     const transaction = await Transaction.create({

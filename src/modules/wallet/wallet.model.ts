@@ -5,6 +5,7 @@ const walletSchema = new Schema<TWallet>(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
     balance: { type: Number, default: 0 },
+    totalExpend: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

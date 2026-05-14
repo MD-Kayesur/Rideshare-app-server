@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 export type TWallet = {
   user: Types.ObjectId;
   balance: number;
+  totalExpend: number;
 };
 
 export type TTransaction = {
