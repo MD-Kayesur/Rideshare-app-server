@@ -26,6 +26,7 @@ const addMoneyToWallet = async (userId: string, payload: Partial<TTransaction>) 
     type: 'in',
     status: 'completed',
     paymentGateway: payload.paymentGateway || 'stripe',
+    paymentMethod: payload.paymentMethod,
     transactionId: payload.transactionId || `TXN-${Date.now()}`,
   });
 

@@ -11,5 +11,6 @@ export type TTransaction = {
   type: 'in' | 'out';
   status: 'pending' | 'completed' | 'failed';
   paymentGateway?: 'stripe' | 'sslcommerz' | 'cash';
+  paymentMethod?: string;
   transactionId?: string;
 };

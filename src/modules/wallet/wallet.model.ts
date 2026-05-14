@@ -16,6 +16,7 @@ const transactionSchema = new Schema<TTransaction>(
     type: { type: String, enum: ['in', 'out'], required: true },
     status: { type: String, enum: ['pending', 'completed', 'failed'], default: 'completed' },
     paymentGateway: { type: String, enum: ['stripe', 'sslcommerz', 'cash'], default: 'cash' },
+    paymentMethod: { type: String },
     transactionId: { type: String },
   },
   { timestamps: true },
