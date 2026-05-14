@@ -47,4 +47,10 @@ const getMyWallet = async (userId: string) => {
 export const WalletService = {
   addMoneyToWallet,
   getMyWallet,
+  deleteTransaction: async (userId: string, transactionId: string) => {
+    return await Transaction.findOneAndDelete({ _id: transactionId, user: userId });
+  },
+  deleteAllTransactions: async (userId: string) => {
+    return await Transaction.deleteMany({ user: userId });
+  },
 };

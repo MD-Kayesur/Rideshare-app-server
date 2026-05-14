@@ -16,4 +16,16 @@ router.get(
   WalletController.getMyWallet,
 );
 
+router.delete(
+  '/delete/:id',
+  auth('rider', 'driver', 'admin'),
+  WalletController.deleteTransaction,
+);
+
+router.delete(
+  '/delete-all',
+  auth('rider', 'driver', 'admin'),
+  WalletController.deleteAllTransactions,
+);
+
 export const WalletRoutes = router;
