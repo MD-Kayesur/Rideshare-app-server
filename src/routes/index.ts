@@ -9,6 +9,7 @@ import { DriverRoutes } from '../modules/driver/driver.route';
 import { ComplaintRoutes } from '../modules/complaint/complaint.route';
 import { NotificationRoutes } from '../modules/notification/notification.route';
 import { VehicleRoutes } from '../modules/vehicle/vehicle.route';
+import { WalletRoutes } from '../modules/wallet/wallet.route';
 
 const router = Router();
 
@@ -52,6 +53,10 @@ const moduleRoutes = [
   {
     path: '/vehicles',
     route: VehicleRoutes,
+  },
+  {
+    path: '/wallet',
+    route: WalletRoutes,
   },
 ];
 
