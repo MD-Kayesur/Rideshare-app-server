@@ -47,6 +47,29 @@ const getMyWallet = async (userId: string) => {
 export const WalletService = {
   addMoneyToWallet,
   getMyWallet,
+  withdrawMoneyFromWallet: async (userId: string, payload: Partial<TTransaction>) => {
+    const { amount } = payload;
+    if (!amount || amount <= 0) throw new AppError(httpStatus.BAD_REQUEST, 'Invalid amount');
+
+    const wallet = await Wallet.findOne({ user: userId });
+    if (!wallet || wallet.balance < amount) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Insufficient balance');
+    }
+
+    wallet.balance -= amount;
+    await wallet.save();
+
+    const transaction = await Transaction.create({
+      user: userId,
+      amount,
+      type: 'out',
+      status: 'completed',
+      paymentMethod: payload.paymentMethod || 'Withdraw',
+      transactionId: payload.transactionId || `TXN-W-${Date.now()}`,
+    });
+
+    return { wallet, transaction };
+  },
   deleteTransaction: async (userId: string, transactionId: string) => {
     return await Transaction.findOneAndDelete({ _id: transactionId, user: userId });
   },

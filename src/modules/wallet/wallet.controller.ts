@@ -16,6 +16,18 @@ const addMoney = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const withdrawMoney = catchAsync(async (req: Request, res: Response) => {
+  const userId = (req as any).user.userId;
+  const result = await WalletService.withdrawMoneyFromWallet(userId, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Money withdrawn successfully',
+    data: result,
+  });
+});
+
 const getMyWallet = catchAsync(async (req: Request, res: Response) => {
   const userId = (req as any).user.userId;
   const result = await WalletService.getMyWallet(userId);
@@ -58,4 +70,5 @@ export const WalletController = {
   getMyWallet,
   deleteTransaction,
   deleteAllTransactions,
+  withdrawMoney,
 };

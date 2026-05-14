@@ -10,6 +10,12 @@ router.post(
   WalletController.addMoney,
 );
 
+router.post(
+  '/withdraw-money',
+  auth('rider', 'driver', 'admin'),
+  WalletController.withdrawMoney,
+);
+
 router.get(
   '/my-wallet',
   auth('rider', 'driver', 'admin'),
