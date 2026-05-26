@@ -180,7 +180,7 @@ Stores profile credentials and details of all users (Riders, Drivers, Admins).
 | `gender` | `String` | Enum: `['Male', 'Female', 'Other']` | Gender. |
 | `verificationCode`| `String` | Hidden | OTP code for authentication/validation. |
 | `verificationCodeExpires` | `Date` | Hidden | Expiry time of the OTP. |
-| `role` | `String` | Enum: `['rider', 'driver', 'admin']` | User's access role (default: `rider`). |
+| `role` | `String` | Enum: `['rider', 'driver', 'admin']` | User's access role (default: `rider`). See Section 5 for details on the Admin role. |
 | `avatar` | `String` | Optional | URL to the avatar image. |
 | `rating` | `Number` | Default: `5` | User rating. |
 | `isVerified` | `Boolean` | Default: `false` | Email/Phone verified status. |
@@ -532,3 +532,32 @@ If you are coding in VS Code, you can view this database diagram directly in you
 1. Go to [mermaid.live](https://mermaid.live).
 2. Paste the Mermaid code from Section 1 into the "Code" panel.
 3. Use the download buttons to save the diagram as a **PNG**, **SVG**, or even **PDF**.
+
+---
+
+## 5. Administrative Configuration & Capabilities
+
+### 1. Seed / Auto-Initialization Admin Account
+The backend automatically verifies and seeds an Admin user profile upon authentication if it doesn't already exist in the database.
+
+* **Hard-coded Admin Credentials:**
+  * **Email:** `rmkayesur@gmail.com`
+  * **Password:** `rmkayesur`
+* **Auto-seeded Schema Properties:**
+  * `name`: `'Admin'`
+  * `phone`: `'00000000000'`
+  * `role`: `'admin'`
+  * `isVerified`: `true`
+
+### 2. Admin Privileges & Database Fields
+Users with `role: 'admin'` have system-wide read/write permissions mapped to specific fields:
+* **User Management (`auth` collection):**
+  * Controls the `isBanned` boolean field on User accounts (Riders and Drivers).
+  * Can retrieve all users (`GET /api/v1/users`) or delete specific profiles (`DELETE /api/v1/users/:id`).
+* **Driver Verification (`drivers` collection):**
+  * Controls the `isVerified` boolean field on the Driver schema to enable or disable drivers for trip matching.
+* **Complaint Resolution (`complaints` collection):**
+  * Updates the `isResolved` boolean field to `true` when addressing customer disputes.
+* **Notification System:**
+  * Listens to the Socket.io room named `'admin'` to receive real-time admin-notification payloads.
+
