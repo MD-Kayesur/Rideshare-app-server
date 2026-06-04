@@ -315,27 +315,33 @@ Supports in-app instant messaging between riders and drivers during active rides
 ### 8. CallLog, Complaint & Notification
 
 #### CallLog Schema (Voice & Video logs)
-- `caller`: Ref: `User` (Required)
-- `receiver`: Ref: `User` (Required)
-- `startTime`: Date (Default: `Date.now`)
-- `endTime`: Date (Optional)
-- `duration`: Number (Seconds)
-- `status`: Enum: `['missed', 'completed', 'ongoing', 'cancelled']`
-- `type`: Enum: `['voice', 'video']`
+| Field | Type | Rules | Description |
+| :--- | :--- | :--- | :--- |
+| `caller` | `ObjectId` | Required, Ref: `User` | Caller profile ID. |
+| `receiver` | `ObjectId` | Required, Ref: `User` | Receiver profile ID. |
+| `startTime` | `Date` | Default: `Date.now` | Call start timestamp. |
+| `endTime` | `Date` | Optional | Call end timestamp. |
+| `duration` | `Number` | | Call duration in seconds. |
+| `status` | `String` | Enum: `['missed', 'completed', 'ongoing', 'cancelled']` | Status of the call. |
+| `type` | `String` | Enum: `['voice', 'video']` | Type of the call. |
 
 #### Complaint Schema
-- `user`: Ref: `User` (Required)
-- `subject`: String (Required)
-- `message`: String (Required)
-- `isResolved`: Boolean (Default: `false`)
+| Field | Type | Rules | Description |
+| :--- | :--- | :--- | :--- |
+| `user` | `ObjectId` | Required, Ref: `User` | User who made the complaint. |
+| `subject` | `String` | Required | Subject of the complaint. |
+| `message` | `String` | Required | Detailed complaint message. |
+| `isResolved`| `Boolean` | Default: `false` | Resolution status. |
 
 #### Notification Schema
-- `recipient`: Ref: `User` (Optional)
-- `title`: String (Required)
-- `message`: String (Required)
-- `type`: Enum: `['complaint', 'driver_request', 'ride_update', 'payment', 'chat']`
-- `isRead`: Boolean (Default: `false`)
-- `metadata`: Mixed JSON payload for deep-linking.
+| Field | Type | Rules | Description |
+| :--- | :--- | :--- | :--- |
+| `recipient` | `ObjectId` | Optional, Ref: `User` | Notification recipient. |
+| `title` | `String` | Required | Notification title. |
+| `message` | `String` | Required | Notification body. |
+| `type` | `String` | Enum: `['complaint', 'driver_request', 'ride_update', 'payment', 'chat']` | Notification type. |
+| `isRead` | `Boolean` | Default: `false` | Read receipt status. |
+| `metadata` | `Mixed` | | JSON payload for deep-linking. |
 
 ---
 
